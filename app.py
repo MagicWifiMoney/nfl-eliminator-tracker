@@ -2025,6 +2025,9 @@ def get_season_planning():
     return jsonify(planning_data)
 
 if __name__ == '__main__':
+    import os
+    port = int(os.environ.get('PORT', 5001))
+    debug_mode = os.environ.get('FLASK_ENV', 'development') == 'development'
     print("Starting NFL Game Tracker...")
-    print("Access the application at: http://localhost:5001")
-    app.run(debug=True, host='0.0.0.0', port=5001)
+    print(f"Access the application at: http://localhost:{port}")
+    app.run(debug=debug_mode, host='0.0.0.0', port=port)
