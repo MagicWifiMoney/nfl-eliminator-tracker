@@ -311,35 +311,40 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 16px;
-            padding-bottom: 12px;
-        }
-
-        .header-left {
-            display: flex;
-            flex-direction: column;
-            gap: 4px;
-        }
-
-        .game-spread {
-            font-size: 1.1rem;
-            font-weight: 700;
-            color: #1a202c;
-            background: #e2e8f0;
-            padding: 4px 8px;
-            border-radius: 6px;
-            border-left: 3px solid #667eea;
-            border-bottom: 2px solid #e2e8f0;
-            background: #f8fafc;
-            margin: -16px -16px 16px -16px;
+            margin-bottom: 8px;
             padding: 12px 16px;
-            border-radius: 12px 12px 0 0;
+            background: linear-gradient(135deg, #f8fafc, #e2e8f0);
+            border-radius: 8px;
+            margin: -16px -16px 8px -16px;
         }
 
         .game-time {
-            font-size: 1rem;
-            color: #2d3748;
+            font-size: 0.95rem;
+            color: #4a5568;
             font-weight: 600;
+        }
+
+        .game-status {
+            font-size: 0.8rem;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .status-pregame {
+            background: #e2e8f0;
+            color: #4a5568;
+        }
+
+        .status-in_progress {
+            background: #fee2e2;
+            color: #dc2626;
+        }
+
+        .status-final {
+            background: #d1fae5;
+            color: #059669;
         }
 
         .game-status {
@@ -397,6 +402,41 @@
         .team-logo:hover {
             transform: scale(1.1);
             box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        }
+
+        /* Recommended Team Glow Effects */
+        .game-card[data-confidence="high"] .team-logo,
+        .game-card[data-confidence="very_high"] .team-logo {
+            border-color: #667eea;
+            box-shadow: 0 0 20px rgba(102, 126, 234, 0.4);
+            animation: gentle-pulse 2s ease-in-out infinite;
+        }
+
+        .game-card[data-confidence="high"] .eliminator-rec,
+        .game-card[data-confidence="very_high"] .eliminator-rec {
+            box-shadow: 0 4px 20px rgba(5, 150, 105, 0.3);
+            border: 1px solid rgba(5, 150, 105, 0.2);
+            animation: glow-border 3s ease-in-out infinite;
+        }
+
+        @keyframes gentle-pulse {
+            0%, 100% {
+                box-shadow: 0 0 20px rgba(102, 126, 234, 0.4);
+                transform: scale(1);
+            }
+            50% {
+                box-shadow: 0 0 30px rgba(102, 126, 234, 0.6);
+                transform: scale(1.02);
+            }
+        }
+
+        @keyframes glow-border {
+            0%, 100% {
+                box-shadow: 0 4px 20px rgba(5, 150, 105, 0.3);
+            }
+            50% {
+                box-shadow: 0 6px 30px rgba(5, 150, 105, 0.5);
+            }
         }
 
         .team-name {
@@ -1647,6 +1687,71 @@
             color: #4c51bf;
             text-decoration: underline;
         }
+
+        /* Spread Badge Styling */
+        .spread-badge {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 10px 16px;
+            border-radius: 12px;
+            margin: 8px 0 16px 0;
+            font-weight: 700;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .spread-badge::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+            transition: left 0.5s;
+        }
+
+        .spread-badge:hover::before {
+            left: 100%;
+        }
+
+        .spread-team {
+            font-size: 1.1rem;
+            font-weight: 800;
+        }
+
+        .spread-value {
+            font-size: 1.2rem;
+            font-weight: 900;
+        }
+
+        /* Spread Badge Color Coding */
+        .spread-large {
+            background: linear-gradient(135deg, #059669, #10b981);
+            color: white;
+            border: 2px solid #047857;
+        }
+
+        .spread-medium {
+            background: linear-gradient(135deg, #2563eb, #3b82f6);
+            color: white;
+            border: 2px solid #1d4ed8;
+        }
+
+        .spread-small {
+            background: linear-gradient(135deg, #d97706, #f59e0b);
+            color: white;
+            border: 2px solid #b45309;
+        }
+
+        .spread-pickem {
+            background: linear-gradient(135deg, #dc2626, #ef4444);
+            color: white;
+            border: 2px solid #b91c1c;
+        }
         .insight-item {
             font-size: 0.75rem;
             color: #6b7280;
@@ -2850,12 +2955,15 @@
                 return `
                     <div class="game-card" data-game-id="${game.id}" data-confidence="${game.eliminator?.confidence || 'low'}">
                         <div class="game-header">
-                            <div class="header-left">
-                                <span class="game-time">${gameTime}</span>
-                                ${game.spread !== 0 ? `<span class="game-spread">${game.spread > 0 ? game.away_team.abbr : game.home_team.abbr} ${spreadText}</span>` : ''}
-                            </div>
+                            <span class="game-time">${gameTime}</span>
                             <span class="game-status status-${game.status}">${game.status}</span>
                         </div>
+
+                        ${game.spread !== 0 ? `
+                        <div class="spread-badge ${this.getSpreadBadgeClass(game.spread)}">
+                            <div class="spread-team">${game.spread > 0 ? game.away_team.abbr : game.home_team.abbr}</div>
+                            <div class="spread-value">${spreadText}</div>
+                        </div>` : ''}
 
                         <div class="matchup">
                             <div class="team">
@@ -2972,6 +3080,14 @@
                 }
 
                 return insights.length > 0 ? insights.join('') : '<div class="insight-item">📋 No significant alerts for this game</div>';
+            }
+
+            getSpreadBadgeClass(spread) {
+                const absSpread = Math.abs(spread);
+                if (absSpread >= 10) return 'spread-large';
+                if (absSpread >= 7) return 'spread-medium';
+                if (absSpread >= 3) return 'spread-small';
+                return 'spread-pickem';
             }
 
             showGameDetails(gameId) {
