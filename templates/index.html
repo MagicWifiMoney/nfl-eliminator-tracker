@@ -28,13 +28,14 @@
 
         .header {
             text-align: center;
-            margin-bottom: 30px;
+            margin-bottom: 20px;
             color: #1a202c;
             background: white;
             padding: 30px;
             border-radius: 16px;
             box-shadow: 0 2px 8px rgba(0,0,0,0.1);
             border: 1px solid #e2e8f0;
+            position: relative;
         }
 
         .header h1 {
@@ -47,6 +48,80 @@
             font-size: 1.1rem;
             color: #4a5568;
             font-weight: 500;
+            margin-bottom: 15px;
+        }
+
+        .last-updated {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 15px;
+            font-size: 0.9rem;
+            color: #6b7280;
+        }
+
+        .btn-small {
+            padding: 6px 12px;
+            border: 1px solid #cbd5e0;
+            background: white;
+            color: #4a5568;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            transition: all 0.2s;
+        }
+
+        .btn-small:hover {
+            background: #f7fafc;
+            border-color: #667eea;
+        }
+
+        /* Tab Navigation */
+        .tab-navigation {
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+            margin-bottom: 30px;
+            background: white;
+            padding: 8px;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            border: 1px solid #e2e8f0;
+        }
+
+        .tab-btn {
+            padding: 12px 24px;
+            border: none;
+            background: transparent;
+            color: #6b7280;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .tab-btn:hover {
+            background: #f8fafc;
+            color: #4a5568;
+        }
+
+        .tab-btn.active {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+        }
+
+        /* Tab Content */
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
         }
 
         .controls {
@@ -1147,7 +1222,340 @@
             box-shadow: 0 2px 8px rgba(185, 28, 28, 0.1);
         }
 
+        /* History Tab Styles */
+        .history-section {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .history-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .week-filters {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 30px;
+            justify-content: center;
+        }
+
+        .history-timeline {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            margin-bottom: 30px;
+        }
+
+        .performance-summary {
+            margin-top: 30px;
+        }
+
+        .summary-cards {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .summary-card {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .summary-card h3 {
+            color: #1a202c;
+            margin-bottom: 15px;
+            font-size: 1.2rem;
+        }
+
+        /* Strategy Tab Styles */
+        .strategy-section {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .strategy-header {
+            text-align: center;
+            margin-bottom: 30px;
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .strategy-header h2 {
+            color: #1a202c;
+            margin-bottom: 10px;
+        }
+
+        .strategy-header p {
+            color: #6b7280;
+            font-size: 1.1rem;
+        }
+
+        .strategy-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+        }
+
+        .strategy-card {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            border-left: 4px solid #667eea;
+        }
+
+        .strategy-card h3 {
+            color: #1a202c;
+            margin-bottom: 15px;
+            font-size: 1.1rem;
+        }
+
+        /* Settings Tab Styles */
+        .settings-section {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .settings-header {
+            text-align: center;
+            margin-bottom: 30px;
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .settings-header h2 {
+            color: #1a202c;
+            margin-bottom: 10px;
+        }
+
+        .settings-header p {
+            color: #6b7280;
+            font-size: 1.1rem;
+        }
+
+        .settings-groups {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .settings-group {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .settings-group h3 {
+            color: #1a202c;
+            margin-bottom: 15px;
+            font-size: 1.2rem;
+            border-bottom: 1px solid #e2e8f0;
+            padding-bottom: 10px;
+        }
+
+        .family-settings {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .family-member input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #cbd5e0;
+            border-radius: 6px;
+            font-size: 1rem;
+        }
+
+        .notification-settings label,
+        .appearance-settings label,
+        .refresh-settings label {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 10px;
+            font-size: 1rem;
+            color: #4a5568;
+        }
+
+        .notification-settings input[type="checkbox"],
+        .appearance-settings input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+        }
+
+        .refresh-settings select {
+            padding: 8px;
+            border: 1px solid #cbd5e0;
+            border-radius: 6px;
+            margin-left: 10px;
+        }
+
+        .settings-actions {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+        }
+
+        /* History Timeline Styles */
+        .history-week-card {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            border-left: 4px solid #667eea;
+        }
+
+        .history-week-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .history-week-header h3 {
+            color: #1a202c;
+            font-size: 1.3rem;
+            margin: 0;
+        }
+
+        .week-summary {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
+
+        .history-picks-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+
+        .history-pick {
+            background: #f8fafc;
+            border-radius: 8px;
+            padding: 15px;
+            text-align: center;
+            border: 2px solid #e2e8f0;
+            transition: all 0.3s ease;
+        }
+
+        .history-pick.win {
+            border-color: #10b981;
+            background: #ecfdf5;
+        }
+
+        .history-pick.loss {
+            border-color: #ef4444;
+            background: #fef2f2;
+        }
+
+        .history-pick.no-pick {
+            border-color: #9ca3af;
+            background: #f3f4f6;
+            opacity: 0.6;
+        }
+
+        .person-name {
+            font-weight: 600;
+            color: #374151;
+            margin-bottom: 10px;
+        }
+
+        .pick-team {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            margin-bottom: 10px;
+        }
+
+        .pick-logo {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+        }
+
+        .pick-result {
+            font-size: 1.2rem;
+            font-weight: 600;
+        }
+
+        .pick-result.win {
+            color: #10b981;
+        }
+
+        .pick-result.loss {
+            color: #ef4444;
+        }
+
+        .pick-result.pending {
+            color: #6b7280;
+        }
+
+        /* Strategy Game Cards */
+        .strategy-game-card {
+            background: #f8fafc;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 10px;
+            border-left: 3px solid #667eea;
+        }
+
+        .game-matchup {
+            font-weight: 600;
+            color: #1a202c;
+            margin-bottom: 8px;
+        }
+
+        .pick-recommendation,
+        .safety-score,
+        .value-score {
+            font-size: 0.9rem;
+            color: #6b7280;
+        }
+
         @media (max-width: 768px) {
+            .tab-navigation {
+                flex-wrap: wrap;
+                gap: 4px;
+            }
+
+            .tab-btn {
+                padding: 10px 16px;
+                font-size: 0.9rem;
+            }
+
+            .summary-cards {
+                grid-template-columns: 1fr;
+            }
+
+            .strategy-cards {
+                grid-template-columns: 1fr;
+            }
+
             .analytics-grid,
             .injury-grid {
                 grid-template-columns: 1fr;
@@ -1187,35 +1595,25 @@
 <body>
     <div class="container">
         <header class="header">
-            <h1>🏈 NFL Game Tracker</h1>
+            <h1>🏈 NFL Week <span id="current-week">3</span> Dashboard</h1>
             <p>Your complete eliminator pool companion</p>
+            <div class="last-updated">
+                <span id="last-updated-time">Last updated: Loading...</span>
+                <button id="force-refresh-btn" class="btn-small">🔄 Refresh Data</button>
+            </div>
         </header>
 
-        <div class="controls">
-            <div class="week-selector">
-                <label for="week-select">📅 Select NFL Week</label>
-                <div class="week-prompt">👆 Choose the current NFL week to see updated games & data</div>
-                <select id="week-select">
-                    <option value="1">Week 1</option>
-                    <option value="2">Week 2</option>
-                    <option value="3">Week 3</option>
-                    <option value="4">Week 4</option>
-                    <option value="5">Week 5</option>
-                    <option value="6">Week 6</option>
-                    <option value="7">Week 7</option>
-                    <option value="8">Week 8</option>
-                    <option value="9">Week 9</option>
-                    <option value="10">Week 10</option>
-                    <option value="11">Week 11</option>
-                    <option value="12">Week 12</option>
-                    <option value="13">Week 13</option>
-                    <option value="14">Week 14</option>
-                    <option value="15">Week 15</option>
-                    <option value="16">Week 16</option>
-                    <option value="17">Week 17</option>
-                    <option value="18">Week 18</option>
-                </select>
-            </div>
+        <!-- Tab Navigation -->
+        <nav class="tab-navigation">
+            <button class="tab-btn active" data-tab="this-week">📈 This Week</button>
+            <button class="tab-btn" data-tab="history">📊 History</button>
+            <button class="tab-btn" data-tab="strategy">🎯 Strategy</button>
+            <button class="tab-btn" data-tab="settings">⚙️ Settings</button>
+        </nav>
+
+        <!-- This Week Tab Content -->
+        <div class="tab-content active" id="this-week-tab">
+            <div class="controls">
 
             <div class="filters">
                 <button class="filter-btn active" data-filter="all">All Games</button>
@@ -1251,15 +1649,154 @@
 
         <div id="games-container" class="games-grid"></div>
 
-        <div class="picks-section">
-            <div class="picks-header">
-                <h2>Your Picks This Week</h2>
-                <button class="btn btn-secondary" id="clear-picks-btn">Clear All</button>
+            <div class="picks-section">
+                <div class="picks-header">
+                    <h2>Your Picks This Week</h2>
+                    <button class="btn btn-secondary" id="clear-picks-btn">Clear All</button>
+                </div>
+                <div id="picks-container">
+                    <div class="empty-state">
+                        <h3>No picks yet</h3>
+                        <p>Add your eliminator pool picks to track them here</p>
+                    </div>
+                </div>
             </div>
-            <div id="picks-container">
-                <div class="empty-state">
-                    <h3>No picks yet</h3>
-                    <p>Add your eliminator pool picks to track them here</p>
+        </div>
+
+        <!-- History Tab Content -->
+        <div class="tab-content" id="history-tab">
+            <div class="history-section">
+                <div class="history-header">
+                    <h2>📊 Pick History & Performance</h2>
+                    <button class="btn btn-primary" id="add-historical-week-btn">+ Add Week</button>
+                </div>
+
+                <div class="week-filters">
+                    <button class="filter-btn active" data-filter="all-weeks">All Weeks</button>
+                    <button class="filter-btn" data-filter="recent">Recent (Last 4)</button>
+                    <button class="filter-btn" data-filter="wins-only">Wins Only</button>
+                    <button class="filter-btn" data-filter="losses-only">Losses Only</button>
+                </div>
+
+                <div id="history-timeline" class="history-timeline">
+                    <div class="empty-state">
+                        <h3>No historical data yet</h3>
+                        <p>Add previous weeks' picks to track performance over time</p>
+                    </div>
+                </div>
+
+                <div class="performance-summary">
+                    <div class="summary-cards">
+                        <div class="summary-card">
+                            <h3>Team Performance</h3>
+                            <div id="team-performance-chart"></div>
+                        </div>
+                        <div class="summary-card">
+                            <h3>Weekly Trends</h3>
+                            <div id="weekly-trends-chart"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Strategy Tab Content -->
+        <div class="tab-content" id="strategy-tab">
+            <div class="strategy-section">
+                <div class="strategy-header">
+                    <h2>🎯 Eliminator Strategy Hub</h2>
+                    <p>Advanced analytics and planning for your eliminator pool</p>
+                </div>
+
+                <div class="strategy-cards">
+                    <div class="strategy-card">
+                        <h3>🔥 High-Confidence Picks</h3>
+                        <div id="high-confidence-games"></div>
+                    </div>
+                    <div class="strategy-card">
+                        <h3>📈 Value Plays</h3>
+                        <div id="value-plays-games"></div>
+                    </div>
+                    <div class="strategy-card">
+                        <h3>⚠️ Risk Assessment</h3>
+                        <div id="risk-assessment"></div>
+                    </div>
+                    <div class="strategy-card">
+                        <h3>🗓️ Season Planning</h3>
+                        <div id="season-planning"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Settings Tab Content -->
+        <div class="tab-content" id="settings-tab">
+            <div class="settings-section">
+                <div class="settings-header">
+                    <h2>⚙️ Settings & Preferences</h2>
+                    <p>Customize your NFL dashboard experience</p>
+                </div>
+
+                <div class="settings-groups">
+                    <div class="settings-group">
+                        <h3>👥 Family Members</h3>
+                        <div class="family-settings">
+                            <div class="family-member">
+                                <input type="text" placeholder="Person 1 Name" class="person-name" data-person="1">
+                            </div>
+                            <div class="family-member">
+                                <input type="text" placeholder="Person 2 Name" class="person-name" data-person="2">
+                            </div>
+                            <div class="family-member">
+                                <input type="text" placeholder="Person 3 Name" class="person-name" data-person="3">
+                            </div>
+                            <div class="family-member">
+                                <input type="text" placeholder="Person 4 Name" class="person-name" data-person="4">
+                            </div>
+                            <div class="family-member">
+                                <input type="text" placeholder="Person 5 Name" class="person-name" data-person="5">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="settings-group">
+                        <h3>🔔 Notifications</h3>
+                        <div class="notification-settings">
+                            <label><input type="checkbox" id="line-movement-alerts" checked> Line Movement Alerts (3+ points)</label>
+                            <label><input type="checkbox" id="injury-alerts" checked> Key Injury Updates</label>
+                            <label><input type="checkbox" id="game-start-alerts"> Game Start Reminders</label>
+                            <label><input type="checkbox" id="morning-brief" checked> Daily Morning Brief (6 AM)</label>
+                        </div>
+                    </div>
+
+                    <div class="settings-group">
+                        <h3>🎨 Appearance</h3>
+                        <div class="appearance-settings">
+                            <label><input type="checkbox" id="dark-mode"> Dark Mode</label>
+                            <label><input type="checkbox" id="simplified-mode"> Simplified Mode (Less Data)</label>
+                            <label><input type="checkbox" id="large-logos" checked> Large Team Logos</label>
+                        </div>
+                    </div>
+
+                    <div class="settings-group">
+                        <h3>⏰ Data Refresh</h3>
+                        <div class="refresh-settings">
+                            <label>Morning Update Time:
+                                <select id="refresh-time">
+                                    <option value="5">5:00 AM</option>
+                                    <option value="6" selected>6:00 AM</option>
+                                    <option value="7">7:00 AM</option>
+                                    <option value="8">8:00 AM</option>
+                                </select>
+                            </label>
+                            <button class="btn btn-secondary" id="test-refresh">Test Refresh Now</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="settings-actions">
+                    <button class="btn btn-primary" id="save-settings">Save Settings</button>
+                    <button class="btn btn-secondary" id="reset-settings">Reset to Defaults</button>
                 </div>
             </div>
         </div>
@@ -1313,26 +1850,30 @@
     <script>
         class NFLGameTracker {
             constructor() {
-                this.currentWeek = 1;
+                this.currentWeek = 3; // Default to Week 3 as requested
                 this.currentFilter = 'all';
+                this.currentTab = 'this-week';
                 this.games = [];
                 this.picks = this.loadPicks();
-                
+                this.historicalPicks = this.loadHistoricalPicks();
+                this.settings = this.loadSettings();
+
                 this.init();
             }
 
             init() {
                 this.setupEventListeners();
+                this.setupTabNavigation();
                 this.detectCurrentWeek();
                 this.loadGames();
                 this.renderPicks();
+                this.updateLastRefreshTime();
             }
 
             setupEventListeners() {
-                // Week selector
-                document.getElementById('week-select').addEventListener('change', (e) => {
-                    this.currentWeek = parseInt(e.target.value);
-                    this.loadGames();
+                // Force refresh button
+                document.getElementById('force-refresh-btn').addEventListener('click', () => {
+                    this.forceRefresh();
                 });
 
                 // Filter buttons
@@ -1366,6 +1907,66 @@
                     e.preventDefault();
                     this.addPick();
                 });
+            }
+
+            setupTabNavigation() {
+                // Tab navigation
+                document.querySelectorAll('.tab-btn').forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        this.switchTab(e.target.dataset.tab);
+                    });
+                });
+            }
+
+            switchTab(tabName) {
+                // Remove active class from all tabs and content
+                document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+                document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+
+                // Add active class to selected tab and content
+                document.querySelector(`[data-tab="${tabName}"]`).classList.add('active');
+                document.getElementById(`${tabName}-tab`).classList.add('active');
+
+                this.currentTab = tabName;
+
+                // Load tab-specific content
+                this.loadTabContent(tabName);
+            }
+
+            loadTabContent(tabName) {
+                switch(tabName) {
+                    case 'history':
+                        this.loadHistoryTab();
+                        break;
+                    case 'strategy':
+                        this.loadStrategyTab();
+                        break;
+                    case 'settings':
+                        this.loadSettingsTab();
+                        break;
+                    default:
+                        // 'this-week' tab is already loaded
+                        break;
+                }
+            }
+
+            forceRefresh() {
+                document.getElementById('force-refresh-btn').textContent = '🔄 Refreshing...';
+                this.loadGames().finally(() => {
+                    document.getElementById('force-refresh-btn').textContent = '🔄 Refresh Data';
+                    this.updateLastRefreshTime();
+                });
+            }
+
+            updateLastRefreshTime() {
+                const now = new Date();
+                const timeString = now.toLocaleString('en-US', {
+                    hour: 'numeric',
+                    minute: '2-digit',
+                    hour12: true
+                });
+                document.getElementById('last-updated-time').textContent = `Last updated: ${timeString}`;
+                document.getElementById('current-week').textContent = this.currentWeek;
             }
 
             async detectCurrentWeek() {
@@ -2071,6 +2672,289 @@
 
             hideError() {
                 document.getElementById('error').style.display = 'none';
+            }
+
+            // History Tab Methods
+            loadHistoryTab() {
+                this.renderHistoryTimeline();
+                this.setupHistoryEventListeners();
+            }
+
+            setupHistoryEventListeners() {
+                // Add historical week button
+                const addBtn = document.getElementById('add-historical-week-btn');
+                if (addBtn) {
+                    addBtn.addEventListener('click', () => this.showAddHistoricalWeekModal());
+                }
+
+                // Week filter buttons
+                document.querySelectorAll('.week-filters .filter-btn').forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        document.querySelectorAll('.week-filters .filter-btn').forEach(b => b.classList.remove('active'));
+                        e.target.classList.add('active');
+                        this.filterHistoryTimeline(e.target.dataset.filter);
+                    });
+                });
+            }
+
+            renderHistoryTimeline() {
+                const container = document.getElementById('history-timeline');
+                const historical = this.historicalPicks;
+
+                if (!historical || historical.length === 0) {
+                    container.innerHTML = `
+                        <div class="empty-state">
+                            <h3>No historical data yet</h3>
+                            <p>Add previous weeks' picks to track performance over time</p>
+                        </div>
+                    `;
+                    return;
+                }
+
+                // Group picks by week
+                const weeklyPicks = {};
+                historical.forEach(pick => {
+                    if (!weeklyPicks[pick.week]) {
+                        weeklyPicks[pick.week] = [];
+                    }
+                    weeklyPicks[pick.week].push(pick);
+                });
+
+                // Render timeline
+                const timelineHtml = Object.keys(weeklyPicks)
+                    .sort((a, b) => parseInt(b) - parseInt(a))
+                    .map(week => this.renderHistoryWeek(week, weeklyPicks[week]))
+                    .join('');
+
+                container.innerHTML = timelineHtml;
+            }
+
+            renderHistoryWeek(week, picks) {
+                const personNames = this.getPersonNames();
+
+                return `
+                    <div class="history-week-card">
+                        <div class="history-week-header">
+                            <h3>Week ${week}</h3>
+                            <div class="week-summary">
+                                ${picks.filter(p => p.result === 'win').length}W - ${picks.filter(p => p.result === 'loss').length}L
+                            </div>
+                        </div>
+                        <div class="history-picks-grid">
+                            ${personNames.map((name, index) => {
+                                const pick = picks.find(p => p.person === index + 1);
+                                return this.renderHistoryPick(name, pick);
+                            }).join('')}
+                        </div>
+                    </div>
+                `;
+            }
+
+            renderHistoryPick(personName, pick) {
+                if (!pick) {
+                    return `
+                        <div class="history-pick no-pick">
+                            <div class="person-name">${personName}</div>
+                            <div class="pick-result">No Pick</div>
+                        </div>
+                    `;
+                }
+
+                const resultClass = pick.result === 'win' ? 'win' : pick.result === 'loss' ? 'loss' : 'pending';
+                const logoUrl = `https://a.espncdn.com/i/teamlogos/nfl/500/${pick.team.toLowerCase()}.png`;
+
+                return `
+                    <div class="history-pick ${resultClass}">
+                        <div class="person-name">${personName}</div>
+                        <div class="pick-team">
+                            <img src="${logoUrl}" alt="${pick.team}" class="pick-logo" onerror="this.style.display='none'">
+                            <span>${pick.team}</span>
+                        </div>
+                        <div class="pick-result ${resultClass}">
+                            ${pick.result === 'win' ? '✅' : pick.result === 'loss' ? '❌' : '⏳'}
+                        </div>
+                    </div>
+                `;
+            }
+
+            // Strategy Tab Methods
+            loadStrategyTab() {
+                this.loadHighConfidenceGames();
+                this.loadValuePlays();
+                this.loadRiskAssessment();
+                this.loadSeasonPlanning();
+            }
+
+            async loadHighConfidenceGames() {
+                const highConfidenceGames = this.games.filter(game =>
+                    game.eliminator && game.eliminator.confidence === 'high'
+                );
+
+                const container = document.getElementById('high-confidence-games');
+                if (highConfidenceGames.length === 0) {
+                    container.innerHTML = '<p>No high-confidence games this week</p>';
+                    return;
+                }
+
+                container.innerHTML = highConfidenceGames.map(game => `
+                    <div class="strategy-game-card">
+                        <div class="game-matchup">
+                            ${game.away_team.abbr} @ ${game.home_team.abbr}
+                        </div>
+                        <div class="pick-recommendation">
+                            Pick: ${game.eliminator.recommended_team}
+                        </div>
+                        <div class="safety-score">
+                            Safety: ${Math.round(game.eliminator.safety_score || 0)}
+                        </div>
+                    </div>
+                `).join('');
+            }
+
+            async loadValuePlays() {
+                const valueGames = this.games.filter(game =>
+                    game.eliminator && game.eliminator.value_score > 75
+                );
+
+                const container = document.getElementById('value-plays-games');
+                container.innerHTML = valueGames.length > 0 ?
+                    valueGames.map(game => `
+                        <div class="strategy-game-card">
+                            <div class="game-matchup">
+                                ${game.away_team.abbr} @ ${game.home_team.abbr}
+                            </div>
+                            <div class="value-score">
+                                Value: ${Math.round(game.eliminator.value_score || 0)}
+                            </div>
+                        </div>
+                    `).join('') : '<p>No high-value plays identified this week</p>';
+            }
+
+            async loadRiskAssessment() {
+                const riskyGames = this.games.filter(game =>
+                    game.eliminator && game.eliminator.safety_score < 60
+                );
+
+                const container = document.getElementById('risk-assessment');
+                container.innerHTML = riskyGames.length > 0 ?
+                    `<p><strong>⚠️ ${riskyGames.length} games</strong> have elevated risk this week</p>` :
+                    '<p>✅ No high-risk games identified this week</p>';
+            }
+
+            async loadSeasonPlanning() {
+                const container = document.getElementById('season-planning');
+                container.innerHTML = `
+                    <p>📊 Season planning data loading...</p>
+                    <p>🎯 Weeks remaining: ${18 - this.currentWeek}</p>
+                    <p>💡 Strategy: Save elite teams for difficult weeks</p>
+                `;
+            }
+
+            // Settings Tab Methods
+            loadSettingsTab() {
+                this.loadPersonNames();
+                this.loadNotificationSettings();
+                this.setupSettingsEventListeners();
+            }
+
+            loadPersonNames() {
+                const names = this.getPersonNames();
+                names.forEach((name, index) => {
+                    const input = document.querySelector(`[data-person="${index + 1}"]`);
+                    if (input) {
+                        input.value = name;
+                    }
+                });
+            }
+
+            loadNotificationSettings() {
+                // Load notification preferences from settings
+                const settings = this.settings;
+                document.getElementById('line-movement-alerts').checked = settings.lineMovementAlerts !== false;
+                document.getElementById('injury-alerts').checked = settings.injuryAlerts !== false;
+                document.getElementById('game-start-alerts').checked = settings.gameStartAlerts === true;
+                document.getElementById('morning-brief').checked = settings.morningBrief !== false;
+            }
+
+            setupSettingsEventListeners() {
+                // Save settings button
+                document.getElementById('save-settings').addEventListener('click', () => {
+                    this.saveSettings();
+                });
+
+                // Reset settings button
+                document.getElementById('reset-settings').addEventListener('click', () => {
+                    this.resetSettings();
+                });
+            }
+
+            saveSettings() {
+                // Save person names
+                const names = [];
+                for (let i = 1; i <= 5; i++) {
+                    const input = document.querySelector(`[data-person="${i}"]`);
+                    names.push(input.value || `Person ${i}`);
+                }
+
+                // Save notification settings
+                this.settings = {
+                    personNames: names,
+                    lineMovementAlerts: document.getElementById('line-movement-alerts').checked,
+                    injuryAlerts: document.getElementById('injury-alerts').checked,
+                    gameStartAlerts: document.getElementById('game-start-alerts').checked,
+                    morningBrief: document.getElementById('morning-brief').checked,
+                    refreshTime: document.getElementById('refresh-time').value
+                };
+
+                localStorage.setItem('nfl-tracker-settings', JSON.stringify(this.settings));
+                alert('Settings saved successfully!');
+            }
+
+            resetSettings() {
+                if (confirm('Reset all settings to defaults?')) {
+                    localStorage.removeItem('nfl-tracker-settings');
+                    this.settings = {};
+                    this.loadSettingsTab();
+                    alert('Settings reset to defaults');
+                }
+            }
+
+            // Utility Methods
+            loadSettings() {
+                try {
+                    const saved = localStorage.getItem('nfl-tracker-settings');
+                    return saved ? JSON.parse(saved) : {};
+                } catch (error) {
+                    console.error('Error loading settings:', error);
+                    return {};
+                }
+            }
+
+            loadHistoricalPicks() {
+                try {
+                    const saved = localStorage.getItem('nfl-tracker-historical');
+                    return saved ? JSON.parse(saved) : [];
+                } catch (error) {
+                    console.error('Error loading historical picks:', error);
+                    return [];
+                }
+            }
+
+            getPersonNames() {
+                if (this.settings.personNames) {
+                    return this.settings.personNames;
+                }
+                return ['Person 1', 'Person 2', 'Person 3', 'Person 4', 'Person 5'];
+            }
+
+            filterHistoryTimeline(filter) {
+                // Implementation for filtering historical data
+                console.log('Filtering history by:', filter);
+            }
+
+            showAddHistoricalWeekModal() {
+                // Implementation for adding historical week data
+                alert('Add Historical Week modal - Coming soon!');
             }
         }
 

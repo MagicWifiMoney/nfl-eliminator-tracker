@@ -5,6 +5,9 @@ import json
 from datetime import datetime, timedelta
 import random
 import re
+import schedule
+import threading
+import time
 
 app = Flask(__name__)
 CORS(app)
@@ -20,6 +23,15 @@ class NFLGameTracker:
         self.odds_api_key = "1df7982496664b58ff38d8c96fc8fdf0"  # The Odds API key
         self.odds_cache = None  # Cache odds data to avoid multiple API calls
         self.odds_cache_time = None
+
+        # Team records cache for weekly updates
+        self.team_records_cache = {}
+        self.team_records_last_updated = None
+        self.team_standings_cache = None
+
+        # Daily refresh tracking
+        self.last_daily_refresh = None
+        self.daily_refresh_hour = 6  # 6 AM default
         
         # NFL Divisions for detecting divisional matchups
         self.nfl_divisions = {
@@ -311,7 +323,7 @@ class NFLGameTracker:
                             "id": team_data.get('id', ''),
                             "name": team_data.get('displayName', team_data.get('name', '')),
                             "abbr": team_data.get('abbreviation', ''),
-                            "record": self.parse_team_record(competitor),
+                            "record": self.enhanced_parse_team_record(competitor),
                             "score": int(competitor.get('score', 0)),
                             "logo": self.get_team_logo_url(team_data.get('abbreviation', '')),
                             "colors": self.get_team_colors(team_data.get('abbreviation', ''))
@@ -1591,8 +1603,237 @@ class NFLGameTracker:
             }
         ]
 
+    def update_team_records_weekly(self):
+        """Update team records cache weekly by fetching current standings"""
+        try:
+            print(f"Starting weekly team records update at {datetime.now()}")
+
+            # Try multiple approaches to get team records
+            records_updated = False
+
+            # Approach 1: Try standings API
+            try:
+                standings_url = f"{self.base_url}/standings?season={self.current_season}"
+                response = requests.get(standings_url, headers=self.headers, timeout=10)
+
+                if response.status_code == 200:
+                    standings_data = response.json()
+                    self.team_standings_cache = standings_data
+                    if self.parse_standings_to_records(standings_data):
+                        records_updated = True
+                        print("Updated records from standings API")
+            except Exception as e:
+                print(f"Standings API failed: {str(e)}")
+
+            # Approach 2: If standings failed, use current week scoreboard data
+            if not records_updated:
+                try:
+                    current_week = self.get_current_week()
+                    scoreboard_url = f"{self.base_url}/scoreboard?week={current_week}&seasontype=2&year={self.current_season}"
+                    response = requests.get(scoreboard_url, headers=self.headers, timeout=10)
+
+                    if response.status_code == 200:
+                        scoreboard_data = response.json()
+                        if self.parse_scoreboard_to_records(scoreboard_data):
+                            records_updated = True
+                            print(f"Updated records from scoreboard week {current_week}")
+                        else:
+                            # Single fallback to previous week if current week has no data
+                            prev_week = max(1, current_week - 1)
+                            if prev_week != current_week:
+                                fallback_url = f"{self.base_url}/scoreboard?week={prev_week}&seasontype=2&year={self.current_season}"
+                                fallback_response = requests.get(fallback_url, headers=self.headers, timeout=10)
+                                if fallback_response.status_code == 200:
+                                    fallback_data = fallback_response.json()
+                                    if self.parse_scoreboard_to_records(fallback_data):
+                                        records_updated = True
+                                        print(f"Updated records from fallback week {prev_week}")
+                except Exception as e:
+                    print(f"Scoreboard fallback failed: {str(e)}")
+
+            if records_updated:
+                self.team_records_last_updated = datetime.now()
+                print(f"Team records updated successfully at {self.team_records_last_updated}")
+                print(f"Cached records for {len(self.team_records_cache)} teams")
+            else:
+                print("Failed to update team records from any source")
+
+        except Exception as e:
+            print(f"Error updating team records: {str(e)}")
+
+    def parse_standings_to_records(self, standings_data):
+        """Parse ESPN standings data to extract team records"""
+        try:
+            records_found = False
+            if 'children' in standings_data:
+                for conference in standings_data['children']:
+                    if 'standings' in conference and 'entries' in conference['standings']:
+                        for entry in conference['standings']['entries']:
+                            team_data = entry.get('team', {})
+                            stats = entry.get('stats', [])
+
+                            team_abbr = team_data.get('abbreviation', '')
+                            if team_abbr and stats:
+                                # Find wins and losses in stats
+                                wins = 0
+                                losses = 0
+                                for stat in stats:
+                                    if stat.get('type') == 'wins':
+                                        wins = stat.get('value', 0)
+                                    elif stat.get('type') == 'losses':
+                                        losses = stat.get('value', 0)
+
+                                record_str = f"{wins}-{losses}"
+                                self.team_records_cache[team_abbr] = record_str
+                                records_found = True
+
+            return records_found
+
+        except Exception as e:
+            print(f"Error parsing standings data: {str(e)}")
+            return False
+
+    def parse_scoreboard_to_records(self, scoreboard_data):
+        """Parse scoreboard data to extract team records as fallback"""
+        try:
+            records_found = False
+            if 'events' in scoreboard_data:
+                for event in scoreboard_data['events']:
+                    competitions = event.get('competitions', [])
+                    for competition in competitions:
+                        competitors = competition.get('competitors', [])
+                        for competitor in competitors:
+                            team_data = competitor.get('team', {})
+                            team_abbr = team_data.get('abbreviation', '')
+
+                            if team_abbr:
+                                # Use existing record parsing logic
+                                record_str = self.parse_team_record(competitor)
+                                if record_str and record_str != '0-0':
+                                    # Ensure record is stored as string format
+                                    if isinstance(record_str, dict):
+                                        wins = record_str.get('wins', 0)
+                                        losses = record_str.get('losses', 0)
+                                        record_str = f"{wins}-{losses}"
+                                    self.team_records_cache[team_abbr] = record_str
+                                    records_found = True
+
+            return records_found
+
+        except Exception as e:
+            print(f"Error parsing scoreboard data: {str(e)}")
+            return False
+
+    def get_cached_team_record(self, team_abbr):
+        """Get team record from cache, with fallback to API"""
+        # Use cached record if available and recent
+        if (team_abbr in self.team_records_cache and
+            self.team_records_last_updated and
+            (datetime.now() - self.team_records_last_updated).days < 7):
+            return self.team_records_cache[team_abbr]
+
+        # If no cache or cache is stale, return None to use regular API parsing
+        return None
+
+    def enhanced_parse_team_record(self, competitor):
+        """Enhanced team record parsing with cache fallback"""
+        # First try to get from cache
+        team_data = competitor.get('team', {})
+        team_abbr = team_data.get('abbreviation', '')
+
+        if team_abbr:
+            cached_record = self.get_cached_team_record(team_abbr)
+            if cached_record:
+                return cached_record
+
+        # Fall back to original parsing method
+        return self.parse_team_record(competitor)
+
+    def force_update_records(self):
+        """Force an immediate update of team records (useful for manual triggers)"""
+        self.update_team_records_weekly()
+
+    def get_records_last_updated(self):
+        """Get when team records were last updated"""
+        if self.team_records_last_updated:
+            return self.team_records_last_updated.strftime('%Y-%m-%d %H:%M:%S')
+        return "Never updated"
+
+    def daily_morning_refresh(self):
+        """Perform daily morning refresh of line movements, injuries, weather"""
+        try:
+            print(f"Starting daily morning refresh at {datetime.now()}")
+
+            # Refresh current week games data
+            current_week = self.get_current_week()
+
+            # Clear relevant caches to force fresh data
+            self.odds_cache = None
+            self.odds_cache_time = None
+
+            # Get fresh data for current week
+            fresh_games = self.get_games_for_week(current_week)
+
+            self.last_daily_refresh = datetime.now()
+            print(f"Daily morning refresh completed at {self.last_daily_refresh}")
+            print(f"Refreshed data for {len(fresh_games)} games in Week {current_week}")
+
+            return fresh_games
+
+        except Exception as e:
+            print(f"Error during daily morning refresh: {str(e)}")
+            return None
+
+    def should_perform_daily_refresh(self):
+        """Check if daily refresh should be performed"""
+        now = datetime.now()
+
+        # Check if it's past the scheduled refresh hour and we haven't refreshed today
+        if (now.hour >= self.daily_refresh_hour and
+            (not self.last_daily_refresh or
+             self.last_daily_refresh.date() < now.date())):
+            return True
+
+        return False
+
+    def start_weekly_scheduler(self):
+        """Start the background scheduler for weekly and daily updates"""
+        def run_scheduler():
+            # Schedule weekly team record updates on Tuesdays at 2 AM (after Monday Night Football)
+            schedule.every().tuesday.at("02:00").do(self.update_team_records_weekly)
+
+            # Schedule daily morning refresh at configured hour (default 6 AM)
+            refresh_time = f"{self.daily_refresh_hour:02d}:00"
+            schedule.every().day.at(refresh_time).do(self.daily_morning_refresh)
+
+            print("NFL Dashboard scheduler started")
+            print(f"Daily refresh scheduled: {refresh_time}")
+            print("Weekly updates scheduled: Tuesdays 2:00 AM")
+
+            while True:
+                schedule.run_pending()
+                time.sleep(3600)  # Check every hour
+
+        # Run scheduler in background thread
+        scheduler_thread = threading.Thread(target=run_scheduler, daemon=True)
+        scheduler_thread.start()
+
+        # Do initial updates if needed
+        if (not self.team_records_last_updated or
+            (datetime.now() - self.team_records_last_updated).days >= 7):
+            print("Performing initial team records update...")
+            self.update_team_records_weekly()
+
+        # Check if daily refresh is needed
+        if self.should_perform_daily_refresh():
+            print("Performing initial daily refresh...")
+            self.daily_morning_refresh()
+
 # Initialize the tracker
 nfl_tracker = NFLGameTracker()
+
+# Start the weekly scheduler
+nfl_tracker.start_weekly_scheduler()
 
 @app.route('/')
 def index():
@@ -2023,6 +2264,54 @@ def get_season_planning():
         }
     
     return jsonify(planning_data)
+
+@app.route('/api/team-records/update', methods=['POST'])
+def update_team_records():
+    """Manually trigger team records update"""
+    try:
+        nfl_tracker.force_update_records()
+        return jsonify({
+            'status': 'success',
+            'message': 'Team records update triggered',
+            'last_updated': nfl_tracker.get_records_last_updated(),
+            'cached_teams': len(nfl_tracker.team_records_cache)
+        })
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/team-records/status')
+def team_records_status():
+    """Get team records cache status"""
+    return jsonify({
+        'last_updated': nfl_tracker.get_records_last_updated(),
+        'cached_teams_count': len(nfl_tracker.team_records_cache),
+        'cached_teams': nfl_tracker.team_records_cache,
+        'cache_age_days': (datetime.now() - nfl_tracker.team_records_last_updated).days if nfl_tracker.team_records_last_updated else None
+    })
+
+@app.route('/api/daily-refresh/trigger', methods=['POST'])
+def trigger_daily_refresh():
+    """Manually trigger daily morning refresh"""
+    try:
+        games = nfl_tracker.daily_morning_refresh()
+        return jsonify({
+            'status': 'success',
+            'message': 'Daily refresh completed',
+            'games_updated': len(games) if games else 0,
+            'last_refresh': nfl_tracker.last_daily_refresh.strftime('%Y-%m-%d %H:%M:%S') if nfl_tracker.last_daily_refresh else None
+        })
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/daily-refresh/status')
+def daily_refresh_status():
+    """Get daily refresh status"""
+    return jsonify({
+        'last_refresh': nfl_tracker.last_daily_refresh.strftime('%Y-%m-%d %H:%M:%S') if nfl_tracker.last_daily_refresh else 'Never',
+        'scheduled_hour': nfl_tracker.daily_refresh_hour,
+        'should_refresh': nfl_tracker.should_perform_daily_refresh(),
+        'current_hour': datetime.now().hour
+    })
 
 if __name__ == '__main__':
     import os
