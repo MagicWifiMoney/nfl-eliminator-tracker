@@ -1,0 +1,703 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NFL Game Tracker - Preview</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: #f8fafc;
+            min-height: 100vh;
+            color: #1a202c;
+            font-size: 16px;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 20px;
+            color: #1a202c;
+            background: white;
+            padding: 30px;
+            border-radius: 16px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            border: 1px solid #e2e8f0;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            color: #4a5568;
+            font-weight: 500;
+            margin-bottom: 15px;
+        }
+
+        /* Top Pick Section */
+        .top-pick-section {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 24px;
+            border-radius: 16px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 20px rgba(102, 126, 234, 0.3);
+        }
+
+        .top-pick-header {
+            font-size: 1.1rem;
+            margin-bottom: 15px;
+            font-weight: 600;
+        }
+
+        .top-picks-horizontal {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 16px;
+            width: 100%;
+        }
+
+        .top-pick-card {
+            display: flex;
+            align-items: center;
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(10px);
+            border-radius: 12px;
+            padding: 16px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: all 0.3s ease;
+        }
+
+        .top-pick-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+            background: rgba(255, 255, 255, 0.25);
+        }
+
+        .top-pick-logo {
+            width: 48px;
+            height: 48px;
+            border-radius: 8px;
+            margin-right: 12px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .top-pick-info {
+            flex: 1;
+        }
+
+        .top-pick-team {
+            font-weight: 700;
+            font-size: 1rem;
+            color: white;
+            margin-bottom: 4px;
+        }
+
+        .top-pick-confidence {
+            font-size: 0.9rem;
+            color: rgba(255, 255, 255, 0.9);
+            font-weight: 600;
+        }
+
+        .top-pick-details {
+            font-size: 0.8rem;
+            color: rgba(255, 255, 255, 0.8);
+            margin-top: 2px;
+        }
+
+        /* Section Header */
+        .section-header {
+            color: #1a202c;
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 16px;
+            text-align: left;
+        }
+
+        /* Controls */
+        .controls {
+            background: white;
+            padding: 24px;
+            border-radius: 16px;
+            margin-bottom: 15px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            border: 1px solid #e2e8f0;
+        }
+
+        .filters {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .filter-btn {
+            padding: 8px 16px;
+            border: 2px solid #e2e8f0;
+            background: white;
+            color: #4a5568;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+
+        .filter-btn.active {
+            background: #667eea;
+            border-color: #667eea;
+            color: white;
+        }
+
+        .filter-btn:hover {
+            border-color: #667eea;
+            background: #f7fafc;
+        }
+
+        /* Games Grid */
+        .games-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .game-card {
+            background: white;
+            border-radius: 16px;
+            padding: 16px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+            cursor: pointer;
+            margin-bottom: 8px;
+            border: 2px solid #e2e8f0;
+        }
+
+        .game-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+            border-color: #cbd5e0;
+        }
+
+        .game-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+            padding-bottom: 12px;
+            border-bottom: 2px solid #e2e8f0;
+            background: #f8fafc;
+            margin: -16px -16px 16px -16px;
+            padding: 12px 16px;
+            border-radius: 12px 12px 0 0;
+        }
+
+        .game-time {
+            font-size: 1rem;
+            color: #2d3748;
+            font-weight: 600;
+        }
+
+        .game-status {
+            font-size: 0.8rem;
+            padding: 4px 12px;
+            border-radius: 15px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .status-pregame {
+            background: #e2e8f0;
+            color: #4a5568;
+        }
+
+        /* Matchup */
+        .matchup {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+
+        .team {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            min-width: 80px;
+        }
+
+        .team-logo {
+            width: 48px;
+            height: 48px;
+            border-radius: 8px;
+            margin-bottom: 8px;
+        }
+
+        .team-name {
+            font-weight: 700;
+            font-size: 1.1rem;
+            color: #1a202c;
+        }
+
+        .team-record {
+            font-size: 0.8rem;
+            color: #6b7280;
+        }
+
+        .vs {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: #9ca3af;
+        }
+
+        /* Betting Info */
+        .betting-info {
+            background: #f8fafc;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 12px;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .betting-row {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .betting-label {
+            font-size: 0.8rem;
+            color: #6b7280;
+            margin-bottom: 4px;
+        }
+
+        .betting-value {
+            font-weight: 700;
+            font-size: 1rem;
+            color: #1a202c;
+        }
+
+        /* Weather Info */
+        .weather-info {
+            background: #f0f9ff;
+            padding: 8px 12px;
+            border-radius: 6px;
+            margin-bottom: 12px;
+            font-size: 0.85rem;
+            color: #0369a1;
+            display: flex;
+            gap: 10px;
+        }
+
+        /* Game Insights */
+        .game-insights {
+            margin-top: 12px;
+            padding: 8px;
+            background: #f8fafc;
+            border-radius: 8px;
+            border-left: 3px solid #e2e8f0;
+        }
+
+        .insight-item {
+            font-size: 0.75rem;
+            color: #6b7280;
+            margin-bottom: 4px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .insight-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .insight-injury {
+            color: #dc2626;
+            border-left-color: #dc2626;
+        }
+
+        .insight-weather {
+            color: #0369a1;
+            border-left-color: #0369a1;
+        }
+
+        .insight-line {
+            color: #059669;
+            border-left-color: #059669;
+        }
+
+        /* Eliminator Recommendation */
+        .eliminator-rec {
+            background: linear-gradient(135deg, #e6fffa, #f0fff4);
+            border: 1px solid #81e6d9;
+            border-radius: 8px;
+            padding: 12px;
+            margin-bottom: 12px;
+        }
+
+        .rec-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .rec-team {
+            font-weight: 700;
+            color: #047857;
+        }
+
+        .confidence-badge {
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .confidence-high {
+            background: #059669;
+            color: white;
+        }
+
+        .confidence-medium {
+            background: #d97706;
+            color: white;
+        }
+
+        .safety-score {
+            font-size: 0.8rem;
+            color: #047857;
+            font-weight: 600;
+        }
+
+        .venue {
+            font-size: 0.8rem;
+            color: #6b7280;
+            text-align: center;
+            margin-top: 8px;
+            padding-top: 8px;
+            border-top: 1px solid #e2e8f0;
+        }
+
+        /* Confidence borders */
+        .game-card[data-confidence="very_high"] {
+            border-left: 6px solid #047857;
+        }
+        .game-card[data-confidence="high"] {
+            border-left: 6px solid #1e40af;
+        }
+        .game-card[data-confidence="medium"] {
+            border-left: 6px solid #b45309;
+        }
+
+        /* Mobile Responsive */
+        @media (max-width: 768px) {
+            .container {
+                padding: 15px;
+            }
+            .header h1 {
+                font-size: 2rem;
+            }
+            .top-picks-horizontal {
+                grid-template-columns: 1fr;
+                gap: 12px;
+            }
+            .top-pick-card {
+                padding: 12px;
+            }
+            .section-header {
+                font-size: 1.1rem;
+                margin-bottom: 12px;
+            }
+            .game-insights {
+                margin-top: 8px;
+                padding: 6px;
+            }
+            .insight-item {
+                font-size: 0.7rem;
+                margin-bottom: 2px;
+            }
+            .game-header {
+                padding: 10px 14px;
+                margin: -16px -16px 14px -16px;
+                margin-bottom: 14px;
+            }
+            .game-time {
+                font-size: 0.9rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .top-picks-horizontal {
+                gap: 8px;
+            }
+            .top-pick-card {
+                padding: 10px;
+            }
+            .top-pick-team {
+                font-size: 0.9rem;
+            }
+            .top-pick-confidence {
+                font-size: 0.8rem;
+            }
+            .top-pick-details {
+                font-size: 0.75rem;
+            }
+            .game-time {
+                font-size: 0.8rem;
+                line-height: 1.2;
+            }
+            .game-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 4px;
+                padding: 8px 12px;
+            }
+            .game-status {
+                font-size: 0.75rem;
+            }
+            .filters {
+                flex-direction: column;
+            }
+            .filter-btn {
+                text-align: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <h1>🏈 NFL Week 3 Dashboard</h1>
+            <p>Your complete eliminator pool companion - UI Preview</p>
+        </header>
+
+        <!-- Top Pick Section -->
+        <div class="top-pick-section">
+            <div class="top-pick-header">🎯 This Week's Top 3 Picks</div>
+            <div class="top-picks-horizontal">
+                <div class="top-pick-card">
+                    <img class="top-pick-logo" src="https://a.espncdn.com/i/teamlogos/nfl/500/buf.png" alt="Buffalo Bills logo">
+                    <div class="top-pick-info">
+                        <div class="top-pick-team">#1 Buffalo Bills</div>
+                        <div class="top-pick-confidence">92% Confidence</div>
+                        <div class="top-pick-details">vs Miami Dolphins • 7.5 pt favorite</div>
+                    </div>
+                </div>
+                <div class="top-pick-card">
+                    <img class="top-pick-logo" src="https://a.espncdn.com/i/teamlogos/nfl/500/kc.png" alt="Kansas City Chiefs logo">
+                    <div class="top-pick-info">
+                        <div class="top-pick-team">#2 Kansas City Chiefs</div>
+                        <div class="top-pick-confidence">88% Confidence</div>
+                        <div class="top-pick-details">vs Atlanta Falcons • 3 pt favorite</div>
+                    </div>
+                </div>
+                <div class="top-pick-card">
+                    <img class="top-pick-logo" src="https://a.espncdn.com/i/teamlogos/nfl/500/sf.png" alt="San Francisco 49ers logo">
+                    <div class="top-pick-info">
+                        <div class="top-pick-team">#3 San Francisco 49ers</div>
+                        <div class="top-pick-confidence">85% Confidence</div>
+                        <div class="top-pick-details">vs Los Angeles Rams • 5.5 pt favorite</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Controls -->
+        <div class="controls">
+            <h3 class="section-header">🎮 Game Filters</h3>
+            <div class="filters">
+                <button class="filter-btn active">All Games</button>
+                <button class="filter-btn">Large Spreads (7+)</button>
+                <button class="filter-btn">Close Games (<3)</button>
+                <button class="filter-btn">Weather Impact</button>
+                <button class="filter-btn">🛡️ High Safety</button>
+                <button class="filter-btn">🔥 High Confidence</button>
+                <button class="filter-btn">🏥 Injury Impact</button>
+            </div>
+        </div>
+
+        <!-- Games Grid -->
+        <div class="games-grid">
+            <!-- High Confidence Game -->
+            <div class="game-card" data-confidence="high">
+                <div class="game-header">
+                    <span class="game-time">Sun, Sep 15, 1:00 PM • BUF -7.5</span>
+                    <span class="game-status status-pregame">PREGAME</span>
+                </div>
+
+                <div class="matchup">
+                    <div class="team">
+                        <img src="https://a.espncdn.com/i/teamlogos/nfl/500/mia.png" alt="Miami logo" class="team-logo">
+                        <div class="team-name">MIA</div>
+                        <div class="team-record">1-1</div>
+                    </div>
+                    <div class="vs">@</div>
+                    <div class="team">
+                        <img src="https://a.espncdn.com/i/teamlogos/nfl/500/buf.png" alt="Buffalo logo" class="team-logo">
+                        <div class="team-name">BUF</div>
+                        <div class="team-record">2-0</div>
+                    </div>
+                </div>
+
+                <div class="betting-info">
+                    <div class="betting-row">
+                        <span class="betting-label">Spread:</span>
+                        <span class="betting-value">BUF -7.5</span>
+                    </div>
+                    <div class="betting-row">
+                        <span class="betting-label">O/U:</span>
+                        <span class="betting-value">48.5</span>
+                    </div>
+                </div>
+
+                <div class="weather-info">
+                    <span>72°F</span>
+                    <span>Partly Cloudy</span>
+                    <span>5mph wind</span>
+                </div>
+
+                <div class="eliminator-rec">
+                    <div class="rec-header">
+                        <span class="rec-team">Pick: BUF</span>
+                        <span class="confidence-badge confidence-high">HIGH</span>
+                        <span class="safety-score">🛡️ 92</span>
+                    </div>
+                </div>
+
+                <div class="game-insights">
+                    <div class="insight-item insight-line">📊 Large spread indicates significant favorite</div>
+                    <div class="insight-item">📋 No significant alerts for this game</div>
+                </div>
+
+                <div class="venue">Highmark Stadium</div>
+            </div>
+
+            <!-- Medium Confidence Game with Weather -->
+            <div class="game-card" data-confidence="medium">
+                <div class="game-header">
+                    <span class="game-time">Sun, Sep 15, 4:25 PM • SEA -2.5</span>
+                    <span class="game-status status-pregame">PREGAME</span>
+                </div>
+
+                <div class="matchup">
+                    <div class="team">
+                        <img src="https://a.espncdn.com/i/teamlogos/nfl/500/ne.png" alt="Patriots logo" class="team-logo">
+                        <div class="team-name">NE</div>
+                        <div class="team-record">1-1</div>
+                    </div>
+                    <div class="vs">@</div>
+                    <div class="team">
+                        <img src="https://a.espncdn.com/i/teamlogos/nfl/500/sea.png" alt="Seahawks logo" class="team-logo">
+                        <div class="team-name">SEA</div>
+                        <div class="team-record">2-0</div>
+                    </div>
+                </div>
+
+                <div class="betting-info">
+                    <div class="betting-row">
+                        <span class="betting-label">Spread:</span>
+                        <span class="betting-value">SEA -2.5</span>
+                    </div>
+                    <div class="betting-row">
+                        <span class="betting-label">O/U:</span>
+                        <span class="betting-value">41.5</span>
+                    </div>
+                </div>
+
+                <div class="weather-info">
+                    <span>45°F</span>
+                    <span>Rain</span>
+                    <span>18mph wind</span>
+                </div>
+
+                <div class="eliminator-rec">
+                    <div class="rec-header">
+                        <span class="rec-team">Pick: SEA</span>
+                        <span class="confidence-badge confidence-medium">MEDIUM</span>
+                        <span class="safety-score">🛡️ 76</span>
+                    </div>
+                </div>
+
+                <div class="game-insights">
+                    <div class="insight-item insight-injury">🏥 3 key injuries reported</div>
+                    <div class="insight-item insight-weather">🌧️ Rain conditions expected</div>
+                    <div class="insight-item insight-weather">💨 High winds (18mph)</div>
+                </div>
+
+                <div class="venue">Lumen Field</div>
+            </div>
+
+            <!-- Close Game -->
+            <div class="game-card" data-confidence="very_high">
+                <div class="game-header">
+                    <span class="game-time">Sun, Sep 15, 8:20 PM • DAL -1</span>
+                    <span class="game-status status-pregame">PREGAME</span>
+                </div>
+
+                <div class="matchup">
+                    <div class="team">
+                        <img src="https://a.espncdn.com/i/teamlogos/nfl/500/nyg.png" alt="Giants logo" class="team-logo">
+                        <div class="team-name">NYG</div>
+                        <div class="team-record">0-2</div>
+                    </div>
+                    <div class="vs">@</div>
+                    <div class="team">
+                        <img src="https://a.espncdn.com/i/teamlogos/nfl/500/dal.png" alt="Cowboys logo" class="team-logo">
+                        <div class="team-name">DAL</div>
+                        <div class="team-record">1-1</div>
+                    </div>
+                </div>
+
+                <div class="betting-info">
+                    <div class="betting-row">
+                        <span class="betting-label">Spread:</span>
+                        <span class="betting-value">DAL -1</span>
+                    </div>
+                    <div class="betting-row">
+                        <span class="betting-label">O/U:</span>
+                        <span class="betting-value">46.5</span>
+                    </div>
+                </div>
+
+                <div class="weather-info">
+                    <span>Played in Dome</span>
+                </div>
+
+                <div class="eliminator-rec">
+                    <div class="rec-header">
+                        <span class="rec-team">Pick: DAL</span>
+                        <span class="confidence-badge confidence-high">HIGH</span>
+                        <span class="safety-score">🛡️ 83</span>
+                    </div>
+                </div>
+
+                <div class="game-insights">
+                    <div class="insight-item insight-line">⚖️ Pick'em game - very close matchup</div>
+                    <div class="insight-item">📋 No significant alerts for this game</div>
+                </div>
+
+                <div class="venue">AT&T Stadium</div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
