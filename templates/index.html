@@ -593,13 +593,14 @@
         }
 
         .safety-score {
-            background: linear-gradient(135deg, #3b82f6, #1e40af);
-            color: white;
-            padding: 6px 12px;
+            background: linear-gradient(135deg, #1f2937, #374151);
+            color: #ffffff;
+            padding: 8px 14px;
             border-radius: 20px;
-            font-size: 0.85rem;
+            font-size: 0.9rem;
             font-weight: 700;
-            border: 2px solid rgba(255, 255, 255, 0.2);
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+            border: 2px solid #9ca3af;
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
             transition: all 0.2s ease;
             cursor: help;
@@ -1752,6 +1753,41 @@
             color: white;
             border: 2px solid #b91c1c;
         }
+
+        /* Team-based spread badge colors */
+        .team-buf { background: linear-gradient(135deg, #00338D, #C60C30) !important; }
+        .team-mia { background: linear-gradient(135deg, #008E97, #FC4C02) !important; }
+        .team-ne { background: linear-gradient(135deg, #002244, #C60C30) !important; }
+        .team-nyj { background: linear-gradient(135deg, #125740, #FFFFFF) !important; color: #125740 !important; }
+        .team-bal { background: linear-gradient(135deg, #241773, #9E7C0C) !important; }
+        .team-cin { background: linear-gradient(135deg, #FB4F14, #000000) !important; }
+        .team-cle { background: linear-gradient(135deg, #311D00, #FF3C00) !important; }
+        .team-pit { background: linear-gradient(135deg, #FFB612, #101820) !important; }
+        .team-hou { background: linear-gradient(135deg, #03202F, #A71930) !important; }
+        .team-ind { background: linear-gradient(135deg, #002C5F, #A2AAAD) !important; }
+        .team-jax { background: linear-gradient(135deg, #101820, #D7A22A) !important; }
+        .team-ten { background: linear-gradient(135deg, #0C2340, #4B92DB) !important; }
+        .team-den { background: linear-gradient(135deg, #FB4F14, #002244) !important; }
+        .team-kc { background: linear-gradient(135deg, #E31837, #FFB81C) !important; }
+        .team-lv { background: linear-gradient(135deg, #000000, #A5ACAF) !important; }
+        .team-lac { background: linear-gradient(135deg, #0080C6, #FFC20E) !important; }
+        .team-dal { background: linear-gradient(135deg, #003594, #869397) !important; }
+        .team-nyg { background: linear-gradient(135deg, #0B2265, #A71930) !important; }
+        .team-phi { background: linear-gradient(135deg, #004C54, #A5ACAF) !important; }
+        .team-was { background: linear-gradient(135deg, #5A1414, #FFB612) !important; }
+        .team-chi { background: linear-gradient(135deg, #0B162A, #C83803) !important; }
+        .team-det { background: linear-gradient(135deg, #0076B6, #B0B7BC) !important; }
+        .team-gb { background: linear-gradient(135deg, #203731, #FFB612) !important; }
+        .team-min { background: linear-gradient(135deg, #4F2683, #FFC62F) !important; }
+        .team-atl { background: linear-gradient(135deg, #A71930, #000000) !important; }
+        .team-car { background: linear-gradient(135deg, #0085CA, #101820) !important; }
+        .team-no { background: linear-gradient(135deg, #101820, #D3BC8D) !important; }
+        .team-tb { background: linear-gradient(135deg, #D50A0A, #FF7900) !important; }
+        .team-ari { background: linear-gradient(135deg, #97233F, #000000) !important; }
+        .team-lar { background: linear-gradient(135deg, #003594, #FFA300) !important; }
+        .team-sf { background: linear-gradient(135deg, #AA0000, #B3995D) !important; }
+        .team-sea { background: linear-gradient(135deg, #002244, #69BE28) !important; }
+        .team-default { background: linear-gradient(135deg, #4a5568, #718096) !important; }
         .insight-item {
             font-size: 0.75rem;
             color: #6b7280;
@@ -2959,11 +2995,15 @@
                             <span class="game-status status-${game.status}">${game.status}</span>
                         </div>
 
-                        ${game.spread !== 0 ? `
-                        <div class="spread-badge ${this.getSpreadBadgeClass(game.spread)}">
+                        ${game.spread && game.spread !== 0 ? `
+                        <div class="spread-badge ${this.getSpreadBadgeClass(game.spread)} ${this.getTeamColorClass(game.spread > 0 ? game.away_team.abbr : game.home_team.abbr)}">
                             <div class="spread-team">${game.spread > 0 ? game.away_team.abbr : game.home_team.abbr}</div>
                             <div class="spread-value">${spreadText}</div>
-                        </div>` : ''}
+                        </div>` : `
+                        <div class="spread-badge spread-pickem">
+                            <div class="spread-team">EVEN</div>
+                            <div class="spread-value">Pick'em</div>
+                        </div>`}
 
                         <div class="matchup">
                             <div class="team">
@@ -3088,6 +3128,20 @@
                 if (absSpread >= 7) return 'spread-medium';
                 if (absSpread >= 3) return 'spread-small';
                 return 'spread-pickem';
+            }
+
+            getTeamColorClass(teamAbbr) {
+                const teamColors = {
+                    'BUF': 'team-buf', 'MIA': 'team-mia', 'NE': 'team-ne', 'NYJ': 'team-nyj',
+                    'BAL': 'team-bal', 'CIN': 'team-cin', 'CLE': 'team-cle', 'PIT': 'team-pit',
+                    'HOU': 'team-hou', 'IND': 'team-ind', 'JAX': 'team-jax', 'TEN': 'team-ten',
+                    'DEN': 'team-den', 'KC': 'team-kc', 'LV': 'team-lv', 'LAC': 'team-lac',
+                    'DAL': 'team-dal', 'NYG': 'team-nyg', 'PHI': 'team-phi', 'WAS': 'team-was',
+                    'CHI': 'team-chi', 'DET': 'team-det', 'GB': 'team-gb', 'MIN': 'team-min',
+                    'ATL': 'team-atl', 'CAR': 'team-car', 'NO': 'team-no', 'TB': 'team-tb',
+                    'ARI': 'team-ari', 'LAR': 'team-lar', 'SF': 'team-sf', 'SEA': 'team-sea'
+                };
+                return teamColors[teamAbbr] || 'team-default';
             }
 
             showGameDetails(gameId) {
