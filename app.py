@@ -1759,10 +1759,10 @@ class NFLGameTracker:
         # Fall back to original parsing method
         record = self.parse_team_record(competitor)
 
-        # For 2025 season, always show 2024 final records for better analysis
-        if self.current_season == 2025 and team_abbr:
+        # For 2025 season, use 2024 final records when ESP returns 0-0
+        if self.current_season == 2025 and team_abbr and (record == '0-0' or not record):
             cached_2024_record = self.get_2024_season_record(team_abbr)
-            print(f"DEBUG: Team {team_abbr} - Original: {record}, 2024 Fallback: {cached_2024_record}")
+            print(f"DEBUG: Team {team_abbr} - ESPN record: {record}, Using 2024 fallback: {cached_2024_record}")
             if cached_2024_record and cached_2024_record != '0-0':
                 return cached_2024_record
 
