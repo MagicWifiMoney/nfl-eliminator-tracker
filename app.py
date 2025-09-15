@@ -51,6 +51,12 @@ class NFLGameTracker:
         self.news_cache = {}
         self.news_cache_time = None
 
+        # Line movement tracking for Phase 2
+        self.historical_odds = {}  # Store historical odds data
+        self.line_movements = {}   # Track line movements over time
+        self.odds_snapshots = {}   # Multiple snapshots per game
+        self.sharp_money_indicators = {}  # Sharp vs public money tracking
+
         # ESPN Team ID mapping for injury API
         self.espn_team_ids = {
             'ARI': '22', 'ATL': '1', 'BAL': '33', 'BUF': '2',
@@ -614,6 +620,167 @@ class NFLGameTracker:
 
         return relevant_news[:3]  # Return top 3 relevant news items
 
+    def track_odds_history(self, new_odds_data, timestamp):
+        """Track historical odds for line movement analysis"""
+        for game in new_odds_data:
+            game_id = game.get('id', '')
+            if not game_id:
+                continue
+
+            # Initialize game history if not exists
+            if game_id not in self.historical_odds:
+                self.historical_odds[game_id] = []
+
+            # Extract odds from different bookmakers
+            bookmakers = game.get('bookmakers', [])
+            for bookmaker in bookmakers:
+                bookie_name = bookmaker.get('title', 'Unknown')
+                markets = bookmaker.get('markets', [])
+
+                for market in markets:
+                    market_key = market.get('key', '')
+                    outcomes = market.get('outcomes', [])
+
+                    # Store snapshot with timestamp
+                    odds_snapshot = {
+                        'timestamp': timestamp.isoformat(),
+                        'bookmaker': bookie_name,
+                        'market': market_key,
+                        'outcomes': outcomes
+                    }
+
+                    # Add to historical data
+                    self.historical_odds[game_id].append(odds_snapshot)
+
+            # Keep only last 20 snapshots per game to manage memory
+            if len(self.historical_odds[game_id]) > 20:
+                self.historical_odds[game_id] = self.historical_odds[game_id][-20:]
+
+        print(f"Updated historical odds for {len(new_odds_data)} games")
+
+    def analyze_line_movements(self):
+        """Analyze line movements to detect significant changes"""
+        for game_id, history in self.historical_odds.items():
+            if len(history) < 2:
+                continue
+
+            # Group by market type for analysis
+            spread_history = []
+            total_history = []
+            moneyline_history = []
+
+            for snapshot in history:
+                market = snapshot['market']
+                outcomes = snapshot['outcomes']
+
+                if market == 'spreads':
+                    for outcome in outcomes:
+                        spread_history.append({
+                            'timestamp': snapshot['timestamp'],
+                            'team': outcome.get('name', ''),
+                            'point': outcome.get('point', 0),
+                            'price': outcome.get('price', 0)
+                        })
+                elif market == 'totals':
+                    for outcome in outcomes:
+                        total_history.append({
+                            'timestamp': snapshot['timestamp'],
+                            'name': outcome.get('name', ''),
+                            'point': outcome.get('point', 0),
+                            'price': outcome.get('price', 0)
+                        })
+
+            # Analyze significant movements
+            movements = self.detect_significant_movements(game_id, spread_history, total_history)
+            if movements:
+                self.line_movements[game_id] = movements
+
+    def detect_significant_movements(self, game_id, spread_history, total_history):
+        """Detect significant line movements (3+ points spread, 2+ points total)"""
+        movements = []
+
+        # Analyze spread movements
+        if len(spread_history) >= 2:
+            latest_spreads = {}
+            earliest_spreads = {}
+
+            # Get latest and earliest spreads for each team
+            for spread in spread_history:
+                team = spread['team']
+                if team not in latest_spreads:
+                    latest_spreads[team] = spread
+                    earliest_spreads[team] = spread
+                else:
+                    # Update to latest
+                    if spread['timestamp'] > latest_spreads[team]['timestamp']:
+                        latest_spreads[team] = spread
+                    # Keep earliest
+                    if spread['timestamp'] < earliest_spreads[team]['timestamp']:
+                        earliest_spreads[team] = spread
+
+            # Check for significant movement
+            for team, latest in latest_spreads.items():
+                if team in earliest_spreads:
+                    earliest = earliest_spreads[team]
+                    movement = abs(latest['point'] - earliest['point'])
+
+                    if movement >= 3.0:  # 3+ point movement is significant
+                        direction = "towards" if latest['point'] > earliest['point'] else "away from"
+                        movements.append({
+                            'type': 'spread',
+                            'team': team,
+                            'movement': movement,
+                            'direction': direction,
+                            'from': earliest['point'],
+                            'to': latest['point'],
+                            'significance': 'high' if movement >= 5 else 'medium',
+                            'indicator': self.get_sharp_money_indicator(movement, 'spread')
+                        })
+
+        # Analyze total movements
+        if len(total_history) >= 2:
+            if total_history[0]['point'] and total_history[-1]['point']:
+                movement = abs(total_history[-1]['point'] - total_history[0]['point'])
+                if movement >= 2.0:  # 2+ point total movement is significant
+                    direction = "up" if total_history[-1]['point'] > total_history[0]['point'] else "down"
+                    movements.append({
+                        'type': 'total',
+                        'movement': movement,
+                        'direction': direction,
+                        'from': total_history[0]['point'],
+                        'to': total_history[-1]['point'],
+                        'significance': 'high' if movement >= 3 else 'medium',
+                        'indicator': self.get_sharp_money_indicator(movement, 'total')
+                    })
+
+        return movements
+
+    def get_sharp_money_indicator(self, movement, bet_type):
+        """Determine if line movement indicates sharp money"""
+        # Large movements typically indicate sharp money
+        if bet_type == 'spread':
+            if movement >= 5:
+                return 'sharp_money'
+            elif movement >= 3:
+                return 'possible_sharp'
+            else:
+                return 'public_money'
+        else:  # totals
+            if movement >= 3:
+                return 'sharp_money'
+            elif movement >= 2:
+                return 'possible_sharp'
+            else:
+                return 'public_money'
+
+    def get_line_movements_for_game(self, game_id):
+        """Get line movements for a specific game"""
+        return self.line_movements.get(game_id, [])
+
+    def get_historical_odds_for_game(self, game_id):
+        """Get historical odds snapshots for a game"""
+        return self.historical_odds.get(game_id, [])
+
     def enhance_games_data(self, games):
         """Add betting lines, weather data, and injury reports to games"""
         # Fetch odds data once for all games (more efficient)
@@ -677,9 +844,17 @@ class NFLGameTracker:
                 response = requests.get(url, params=params, timeout=10)
                 
                 if response.status_code == 200:
-                    self.odds_cache = response.json()
+                    new_odds_data = response.json()
+
+                    # Track historical odds for line movement analysis
+                    self.track_odds_history(new_odds_data, now)
+
+                    self.odds_cache = new_odds_data
                     self.odds_cache_time = now
                     print(f"Successfully cached {len(self.odds_cache)} games with real betting odds")
+
+                    # Analyze line movements after updating cache
+                    self.analyze_line_movements()
                 else:
                     print(f"Odds API returned status code: {response.status_code}")
                     if response.status_code == 401:
@@ -2679,6 +2854,115 @@ def get_game_insights(week):
                 'total_games': len(insights),
                 'games_with_injuries': len([g for g in insights if g['injury_summary']['home_injuries'] > 0 or g['injury_summary']['away_injuries'] > 0]),
                 'games_with_news': len([g for g in insights if g['news_count'] > 0])
+            }
+        })
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/line-movements/<int:week>')
+def get_line_movements(week):
+    """API endpoint to get line movements for games in a specific week"""
+    try:
+        games = nfl_tracker.get_games_for_week(week)
+
+        movements_data = []
+        for game in games:
+            game_id = game.get('id', '')
+            if game_id:
+                movements = nfl_tracker.get_line_movements_for_game(game_id)
+
+                if movements:
+                    movements_data.append({
+                        'game_id': game_id,
+                        'matchup': f"{game.get('away_team', {}).get('abbr', 'UNK')} @ {game.get('home_team', {}).get('abbr', 'UNK')}",
+                        'movements': movements,
+                        'total_movements': len(movements),
+                        'significant_movements': len([m for m in movements if m.get('significance') == 'high']),
+                        'sharp_money_indicators': len([m for m in movements if m.get('indicator') == 'sharp_money'])
+                    })
+
+        return jsonify({
+            'week': week,
+            'season': nfl_tracker.current_season,
+            'games_with_movements': movements_data,
+            'summary': {
+                'total_games_analyzed': len(games),
+                'games_with_movements': len(movements_data),
+                'total_movements': sum(g['total_movements'] for g in movements_data),
+                'sharp_money_games': len([g for g in movements_data if g['sharp_money_indicators'] > 0])
+            }
+        })
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/historical-odds/<game_id>')
+def get_historical_odds(game_id):
+    """API endpoint to get historical odds for a specific game"""
+    try:
+        historical_data = nfl_tracker.get_historical_odds_for_game(game_id)
+        movements = nfl_tracker.get_line_movements_for_game(game_id)
+
+        # Process historical data for easier frontend consumption
+        processed_history = {}
+        for snapshot in historical_data:
+            market = snapshot['market']
+            if market not in processed_history:
+                processed_history[market] = []
+
+            processed_history[market].append({
+                'timestamp': snapshot['timestamp'],
+                'bookmaker': snapshot['bookmaker'],
+                'outcomes': snapshot['outcomes']
+            })
+
+        return jsonify({
+            'game_id': game_id,
+            'historical_odds': processed_history,
+            'line_movements': movements,
+            'snapshots_count': len(historical_data),
+            'movements_count': len(movements)
+        })
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/sharp-money-alerts/<int:week>')
+def get_sharp_money_alerts(week):
+    """API endpoint to get sharp money alerts for a specific week"""
+    try:
+        games = nfl_tracker.get_games_for_week(week)
+
+        sharp_alerts = []
+        for game in games:
+            game_id = game.get('id', '')
+            if game_id:
+                movements = nfl_tracker.get_line_movements_for_game(game_id)
+
+                # Filter for sharp money indicators
+                sharp_movements = [m for m in movements if m.get('indicator') in ['sharp_money', 'possible_sharp']]
+
+                if sharp_movements:
+                    sharp_alerts.append({
+                        'game_id': game_id,
+                        'matchup': f"{game.get('away_team', {}).get('abbr', 'UNK')} @ {game.get('home_team', {}).get('abbr', 'UNK')}",
+                        'date': game.get('date', ''),
+                        'sharp_movements': sharp_movements,
+                        'alert_level': 'high' if any(m.get('indicator') == 'sharp_money' for m in sharp_movements) else 'medium'
+                    })
+
+        # Sort by alert level and number of sharp movements
+        sharp_alerts.sort(key=lambda x: (
+            -1 if x['alert_level'] == 'high' else 0,
+            -len(x['sharp_movements'])
+        ))
+
+        return jsonify({
+            'week': week,
+            'season': nfl_tracker.current_season,
+            'sharp_money_alerts': sharp_alerts,
+            'summary': {
+                'total_alerts': len(sharp_alerts),
+                'high_priority': len([a for a in sharp_alerts if a['alert_level'] == 'high']),
+                'medium_priority': len([a for a in sharp_alerts if a['alert_level'] == 'medium'])
             }
         })
     except Exception as e:
