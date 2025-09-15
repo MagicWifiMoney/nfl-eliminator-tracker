@@ -271,6 +271,9 @@ class NFLGameTracker:
                     games = self.parse_espn_data(data, week)
                     if games:
                         print(f"Parsed {len(games)} games")
+                        # Force 2024 records for 2025 season
+                        if self.current_season == 2025:
+                            games = self.force_2024_records_on_games(games)
                         # Enhance with betting and weather data
                         games = self.enhance_games_data(games)
                         return games
@@ -285,7 +288,11 @@ class NFLGameTracker:
         
         print("All ESPN endpoints failed, using sample data")
         # Fallback to sample data
-        return self.get_sample_data(week)
+        games = self.get_sample_data(week)
+        # Force 2024 records for 2025 season even in sample data
+        if self.current_season == 2025:
+            games = self.force_2024_records_on_games(games)
+        return games
     
     def parse_espn_data(self, data, week=1):
         """Parse ESPN API response into our format"""
@@ -1782,6 +1789,29 @@ class NFLGameTracker:
             'SF': '12-5', 'SEA': '10-7', 'LAR': '10-7', 'ARI': '8-9'
         }
         return final_2024_records.get(team_abbr, '0-0')
+
+    def force_2024_records_on_games(self, games):
+        """Force 2024 season records on all games for 2025 season display"""
+        print("DEBUG: Forcing 2024 records on games...")
+        for game in games:
+            # Update home team record
+            if 'home_team' in game:
+                home_abbr = game['home_team'].get('abbreviation') or game['home_team'].get('abbr', '')
+                if home_abbr:
+                    record_2024 = self.get_2024_season_record(home_abbr)
+                    if record_2024 != '0-0':
+                        game['home_team']['record'] = record_2024
+                        print(f"DEBUG: Set {home_abbr} home record to {record_2024}")
+
+            # Update away team record
+            if 'away_team' in game:
+                away_abbr = game['away_team'].get('abbreviation') or game['away_team'].get('abbr', '')
+                if away_abbr:
+                    record_2024 = self.get_2024_season_record(away_abbr)
+                    if record_2024 != '0-0':
+                        game['away_team']['record'] = record_2024
+                        print(f"DEBUG: Set {away_abbr} away record to {record_2024}")
+        return games
 
     def force_update_records(self):
         """Force an immediate update of team records (useful for manual triggers)"""
