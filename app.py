@@ -57,6 +57,16 @@ class NFLGameTracker:
         self.odds_snapshots = {}   # Multiple snapshots per game
         self.sharp_money_indicators = {}  # Sharp vs public money tracking
 
+        # Weekly games cache system for performance
+        self.weekly_games_cache = {}  # Store complete week data
+        self.weekly_cache_timestamps = {}  # Track when each week was cached
+        self.weekly_cache_hashes = {}  # Detect data changes
+        self.last_refresh_check = {}  # Track 2x daily refresh checks
+        self.cache_file_path = 'weekly_cache.json'  # Persistent storage
+
+        # Load persistent cache on startup
+        self.load_weekly_cache_from_file()
+
         # ESPN Team ID mapping for injury API
         self.espn_team_ids = {
             'ARI': '22', 'ATL': '1', 'BAL': '33', 'BUF': '2',
@@ -270,53 +280,201 @@ class NFLGameTracker:
         ]
         
         return sample_games
-    
+
+    def load_weekly_cache_from_file(self):
+        """Load persistent weekly cache from file on startup"""
+        try:
+            import os
+            if os.path.exists(self.cache_file_path):
+                with open(self.cache_file_path, 'r') as f:
+                    cache_data = json.load(f)
+                    self.weekly_games_cache = cache_data.get('games', {})
+                    self.weekly_cache_timestamps = cache_data.get('timestamps', {})
+                    self.weekly_cache_hashes = cache_data.get('hashes', {})
+                    self.last_refresh_check = cache_data.get('refresh_checks', {})
+                    print(f"Loaded weekly cache for {len(self.weekly_games_cache)} weeks")
+        except Exception as e:
+            print(f"Could not load cache file: {e}")
+            self.weekly_games_cache = {}
+            self.weekly_cache_timestamps = {}
+            self.weekly_cache_hashes = {}
+            self.last_refresh_check = {}
+
+    def save_weekly_cache_to_file(self):
+        """Save weekly cache to file for persistence"""
+        try:
+            cache_data = {
+                'games': self.weekly_games_cache,
+                'timestamps': {k: v.isoformat() if isinstance(v, datetime) else v
+                              for k, v in self.weekly_cache_timestamps.items()},
+                'hashes': self.weekly_cache_hashes,
+                'refresh_checks': {k: v.isoformat() if isinstance(v, datetime) else v
+                                  for k, v in self.last_refresh_check.items()}
+            }
+            with open(self.cache_file_path, 'w') as f:
+                json.dump(cache_data, f, indent=2)
+        except Exception as e:
+            print(f"Could not save cache file: {e}")
+
+    def calculate_data_hash(self, games_data):
+        """Calculate hash of games data to detect changes"""
+        import hashlib
+        # Create a simplified representation for hashing
+        hash_data = []
+        for game in games_data:
+            hash_data.append({
+                'id': game.get('id'),
+                'home_team': game.get('home_team', {}).get('abbr'),
+                'away_team': game.get('away_team', {}).get('abbr'),
+                'date': game.get('date'),
+                'status': game.get('status'),
+                'spread': game.get('spread')
+            })
+        data_string = json.dumps(hash_data, sort_keys=True)
+        return hashlib.md5(data_string.encode()).hexdigest()
+
+    def is_cache_expired(self, week):
+        """Check if weekly cache has expired (week ended)"""
+        if str(week) not in self.weekly_cache_timestamps:
+            return True
+
+        cache_time = self.weekly_cache_timestamps[str(week)]
+        if isinstance(cache_time, str):
+            cache_time = datetime.fromisoformat(cache_time)
+
+        now = datetime.now()
+
+        # Cache expires when week ends (Tuesday 6 AM after week completion)
+        # Assuming weeks end on Monday night, cache until Tuesday 6 AM
+        cache_age_hours = (now - cache_time).total_seconds() / 3600
+
+        # For current week, cache for up to 7 days
+        # For past weeks, keep cache longer
+        current_week = self.get_current_week()
+        if week == current_week:
+            return cache_age_hours > 168  # 7 days
+        else:
+            return cache_age_hours > 336  # 14 days for past weeks
+
+    def needs_refresh_check(self, week):
+        """Check if it's time for 2x daily refresh check"""
+        week_key = str(week)
+        now = datetime.now()
+
+        if week_key not in self.last_refresh_check:
+            return True
+
+        last_check = self.last_refresh_check[week_key]
+        if isinstance(last_check, str):
+            last_check = datetime.fromisoformat(last_check)
+
+        hours_since_check = (now - last_check).total_seconds() / 3600
+
+        # Check twice daily (every 12 hours)
+        return hours_since_check >= 12
+
     def get_games_for_week(self, week=1):
-        """Fetch games for a specific week, with fallback to sample data"""
-        print(f"Fetching games for Week {week} of {self.current_season} season...")
-        
-        # Try multiple ESPN endpoints
+        """Smart weekly caching: Return cached data instantly, refresh intelligently"""
+        week_key = str(week)
+        now = datetime.now()
+
+        print(f"Smart cache check for Week {week} of {self.current_season} season...")
+
+        # Step 1: Check if we have valid cached data
+        if (week_key in self.weekly_games_cache and
+            not self.is_cache_expired(week)):
+
+            print(f"✅ Using cached data for Week {week}")
+
+            # Check if we need to do a background refresh (2x daily)
+            if self.needs_refresh_check(week):
+                print(f"⏰ Performing background refresh check for Week {week}")
+
+                # Try to get fresh data to compare
+                fresh_games = self.fetch_fresh_games_data(week)
+                if fresh_games:
+                    # Calculate hash of fresh data
+                    fresh_hash = self.calculate_data_hash(fresh_games)
+
+                    # Compare with cached hash
+                    if (week_key not in self.weekly_cache_hashes or
+                        fresh_hash != self.weekly_cache_hashes[week_key]):
+
+                        print(f"🔄 Data changed, updating cache for Week {week}")
+                        # Data has changed, update cache
+                        self.weekly_games_cache[week_key] = fresh_games
+                        self.weekly_cache_timestamps[week_key] = now
+                        self.weekly_cache_hashes[week_key] = fresh_hash
+                        self.save_weekly_cache_to_file()
+
+                        return fresh_games
+                    else:
+                        print(f"📝 No changes detected, keeping cache for Week {week}")
+
+                # Update refresh check time regardless
+                self.last_refresh_check[week_key] = now
+                self.save_weekly_cache_to_file()
+
+            # Return cached data
+            return self.weekly_games_cache[week_key]
+
+        # Step 2: No valid cache, fetch fresh data
+        print(f"💾 No valid cache for Week {week}, fetching fresh data...")
+        fresh_games = self.fetch_fresh_games_data(week)
+
+        if fresh_games:
+            # Cache the fresh data
+            data_hash = self.calculate_data_hash(fresh_games)
+            self.weekly_games_cache[week_key] = fresh_games
+            self.weekly_cache_timestamps[week_key] = now
+            self.weekly_cache_hashes[week_key] = data_hash
+            self.last_refresh_check[week_key] = now
+            self.save_weekly_cache_to_file()
+
+            print(f"✅ Cached {len(fresh_games)} games for Week {week}")
+            return fresh_games
+
+        # Step 3: Fresh data failed, try to return stale cache if available
+        if week_key in self.weekly_games_cache:
+            print(f"⚠️ Using stale cache for Week {week} (fresh data failed)")
+            return self.weekly_games_cache[week_key]
+
+        # Step 4: Complete fallback to sample data
+        print(f"🆘 Using sample data for Week {week} (no cache, API failed)")
+        games = self.get_sample_data(week)
+        if self.current_season == 2025:
+            games = self.force_current_2025_records_on_games(games)
+        return games
+
+    def fetch_fresh_games_data(self, week):
+        """Fetch fresh games data from ESPN API (extracted from old get_games_for_week)"""
         endpoints = [
             f"{self.base_url}/scoreboard?week={week}&seasontype=2&year={self.current_season}",
             f"{self.base_url}/scoreboard?week={week}&seasontype=2",
             f"{self.base_url}/scoreboard?week={week}",
             f"https://sports.core.api.espn.com/v2/sports/football/leagues/nfl/seasons/{self.current_season}/types/2/weeks/{week}/events"
         ]
-        
+
         for url in endpoints:
             try:
-                print(f"Trying URL: {url}")
                 response = requests.get(url, headers=self.headers, timeout=15)
-                
+
                 if response.status_code == 200:
                     data = response.json()
-                    print(f"Successfully fetched data from ESPN API")
-                    
                     games = self.parse_espn_data(data, week)
                     if games:
-                        print(f"Parsed {len(games)} games")
                         # Force current 2025 records for Week 3 display
                         if self.current_season == 2025:
                             games = self.force_current_2025_records_on_games(games)
                         # Enhance with betting and weather data
                         games = self.enhance_games_data(games)
                         return games
-                    else:
-                        print("No games found in ESPN response")
-                else:
-                    print(f"ESPN API returned status code: {response.status_code}")
-                    
+
             except Exception as e:
                 print(f"ESPN API error with {url}: {e}")
                 continue
-        
-        print("All ESPN endpoints failed, using sample data")
-        # Fallback to sample data
-        games = self.get_sample_data(week)
-        # Force current 2025 records for Week 3 even in sample data
-        if self.current_season == 2025:
-            games = self.force_current_2025_records_on_games(games)
-        return games
+
+        return None
     
     def parse_espn_data(self, data, week=1):
         """Parse ESPN API response into our format"""

@@ -2142,28 +2142,119 @@
             }
 
             async loadGames() {
+                const cacheKey = `nfl_week_${this.currentWeek}_2025_games`;
+                const cacheTimeKey = `${cacheKey}_timestamp`;
+                const cacheExpiryMinutes = 15; // Browser cache for 15 minutes
+
+                console.log(`🏈 Loading games for Week ${this.currentWeek}...`);
+
+                // Step 1: Try to load from browser cache first
+                const cachedGames = this.loadFromBrowserCache(cacheKey, cacheTimeKey, cacheExpiryMinutes);
+                if (cachedGames) {
+                    console.log('⚡ Using browser cache - instant loading!');
+                    this.games = cachedGames;
+                    this.sortGamesByConfidence();
+                    this.updateTopPick();
+                    this.renderGames();
+                    this.populateTeamSelect();
+
+                    // Background refresh check (don't show loading)
+                    this.backgroundRefreshCheck(cacheKey, cacheTimeKey);
+                    return;
+                }
+
+                // Step 2: No cache available, show loading and fetch
+                console.log('💾 No browser cache, fetching from server...');
                 this.showLoading(true);
                 this.hideError();
 
                 try {
                     const response = await fetch(`/api/games/${this.currentWeek}`);
-                    
+
                     if (!response.ok) {
                         throw new Error(`HTTP error! status: ${response.status}`);
                     }
-                    
+
                     this.games = await response.json();
+
+                    // Cache the fresh data in browser
+                    this.saveToBrowserCache(cacheKey, cacheTimeKey, this.games);
+
                     // Sort games by confidence score (highest to lowest)
                     this.sortGamesByConfidence();
                     this.updateTopPick();
                     this.renderGames();
                     this.populateTeamSelect();
-                    
+
+                    console.log(`✅ Fetched and cached ${this.games.length} games`);
+
                 } catch (error) {
                     console.error('Error loading games:', error);
                     this.showError('Failed to load games. Please check your connection and try again.');
                 } finally {
                     this.showLoading(false);
+                }
+            }
+
+            loadFromBrowserCache(cacheKey, cacheTimeKey, expiryMinutes) {
+                try {
+                    const cachedData = localStorage.getItem(cacheKey);
+                    const cachedTime = localStorage.getItem(cacheTimeKey);
+
+                    if (!cachedData || !cachedTime) return null;
+
+                    const cacheAge = (Date.now() - parseInt(cachedTime)) / (1000 * 60); // minutes
+
+                    if (cacheAge > expiryMinutes) {
+                        console.log(`⏰ Browser cache expired (${Math.round(cacheAge)} minutes old)`);
+                        // Clean up expired cache
+                        localStorage.removeItem(cacheKey);
+                        localStorage.removeItem(cacheTimeKey);
+                        return null;
+                    }
+
+                    console.log(`📱 Found browser cache (${Math.round(cacheAge)} minutes old)`);
+                    return JSON.parse(cachedData);
+                } catch (error) {
+                    console.error('Error loading from browser cache:', error);
+                    return null;
+                }
+            }
+
+            saveToBrowserCache(cacheKey, cacheTimeKey, data) {
+                try {
+                    localStorage.setItem(cacheKey, JSON.stringify(data));
+                    localStorage.setItem(cacheTimeKey, Date.now().toString());
+                    console.log('💾 Saved to browser cache');
+                } catch (error) {
+                    console.error('Error saving to browser cache:', error);
+                }
+            }
+
+            async backgroundRefreshCheck(cacheKey, cacheTimeKey) {
+                // Background check for updates without showing loading
+                try {
+                    console.log('🔄 Background refresh check...');
+                    const response = await fetch(`/api/games/${this.currentWeek}`);
+
+                    if (response.ok) {
+                        const freshGames = await response.json();
+
+                        // Simple comparison - if game count different, update
+                        if (freshGames.length !== this.games.length) {
+                            console.log('📊 Data changed, updating display...');
+                            this.games = freshGames;
+                            this.saveToBrowserCache(cacheKey, cacheTimeKey, freshGames);
+                            this.sortGamesByConfidence();
+                            this.updateTopPick();
+                            this.renderGames();
+                            this.populateTeamSelect();
+                        } else {
+                            console.log('✅ No changes detected in background check');
+                        }
+                    }
+                } catch (error) {
+                    console.log('Background refresh failed (this is ok):', error.message);
                 }
             }
 
