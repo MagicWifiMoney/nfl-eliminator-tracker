@@ -1590,6 +1590,101 @@
                 padding: 12px;
             }
         }
+
+        /* Top Pick Confidence Section */
+        .top-pick-section {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 25px;
+            margin: 20px 0;
+            border-radius: 15px;
+            text-align: center;
+            box-shadow: 0 8px 16px rgba(102, 126, 234, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .top-pick-section::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+            animation: pulse-bg 3s ease-in-out infinite;
+        }
+
+        @keyframes pulse-bg {
+            0%, 100% { opacity: 0.3; }
+            50% { opacity: 0.6; }
+        }
+
+        .top-pick-header {
+            font-size: 1.1rem;
+            margin-bottom: 15px;
+            font-weight: 600;
+            position: relative;
+            z-index: 1;
+        }
+
+        .top-pick-content {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 20px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .top-pick-logo {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: white;
+            padding: 8px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }
+
+        .top-pick-info {
+            text-align: left;
+        }
+
+        .top-pick-team {
+            font-size: 1.4rem;
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+
+        .top-pick-confidence {
+            font-size: 2rem;
+            font-weight: 900;
+            background: linear-gradient(45deg, #ffd700, #ffed4e);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+
+        .top-pick-details {
+            font-size: 0.9rem;
+            opacity: 0.9;
+            margin-top: 5px;
+        }
+
+        @media (max-width: 768px) {
+            .top-pick-content {
+                flex-direction: column;
+                gap: 15px;
+            }
+            .top-pick-info {
+                text-align: center;
+            }
+            .top-pick-logo {
+                width: 50px;
+                height: 50px;
+            }
+        }
     </style>
 </head>
 <body>
@@ -1610,6 +1705,19 @@
             <button class="tab-btn" data-tab="strategy">🎯 Strategy</button>
             <button class="tab-btn" data-tab="settings">⚙️ Settings</button>
         </nav>
+
+        <!-- Top Pick Confidence Section -->
+        <div id="top-pick-section" class="top-pick-section" style="display: none;">
+            <div class="top-pick-header">🎯 This Week's Top Pick</div>
+            <div class="top-pick-content">
+                <img id="top-pick-logo" class="top-pick-logo" src="" alt="Team Logo">
+                <div class="top-pick-info">
+                    <div id="top-pick-team" class="top-pick-team"></div>
+                    <div id="top-pick-confidence" class="top-pick-confidence"></div>
+                    <div id="top-pick-details" class="top-pick-details"></div>
+                </div>
+            </div>
+        </div>
 
         <!-- This Week Tab Content -->
         <div class="tab-content active" id="this-week-tab">
@@ -1685,18 +1793,6 @@
                     </div>
                 </div>
 
-                <div class="performance-summary">
-                    <div class="summary-cards">
-                        <div class="summary-card">
-                            <h3>Team Performance</h3>
-                            <div id="team-performance-chart"></div>
-                        </div>
-                        <div class="summary-card">
-                            <h3>Weekly Trends</h3>
-                            <div id="weekly-trends-chart"></div>
-                        </div>
-                    </div>
-                </div>
             </div>
         </div>
 
@@ -2057,6 +2153,9 @@
                     }
                     
                     this.games = await response.json();
+                    // Sort games by confidence score (highest to lowest)
+                    this.sortGamesByConfidence();
+                    this.updateTopPick();
                     this.renderGames();
                     this.populateTeamSelect();
                     
@@ -2165,6 +2264,70 @@
                 }
             }
 
+            sortGamesByConfidence() {
+                if (!this.games || this.games.length === 0) return;
+
+                // Define confidence levels and their numeric values
+                const confidenceValues = {
+                    'very_high': 100,
+                    'high': 80,
+                    'medium': 50,
+                    'low': 20
+                };
+
+                this.games.sort((a, b) => {
+                    const aConfidence = a.eliminator?.confidence || 'low';
+                    const bConfidence = b.eliminator?.confidence || 'low';
+                    const aSafetyScore = a.eliminator?.safety_score || 0;
+                    const bSafetyScore = b.eliminator?.safety_score || 0;
+
+                    // Primary sort: confidence level
+                    const aValue = confidenceValues[aConfidence] || 0;
+                    const bValue = confidenceValues[bConfidence] || 0;
+
+                    if (aValue !== bValue) {
+                        return bValue - aValue; // Higher confidence first
+                    }
+
+                    // Secondary sort: safety score
+                    return bSafetyScore - aSafetyScore;
+                });
+            }
+
+            updateTopPick() {
+                const topPickSection = document.getElementById('top-pick-section');
+
+                if (!this.games || this.games.length === 0) {
+                    topPickSection.style.display = 'none';
+                    return;
+                }
+
+                // Find the highest confidence game
+                const topGame = this.games[0]; // Already sorted by confidence
+
+                if (!topGame.eliminator || topGame.eliminator.confidence === 'low') {
+                    topPickSection.style.display = 'none';
+                    return;
+                }
+
+                // Show and populate the top pick section
+                topPickSection.style.display = 'block';
+
+                const recommendedTeam = topGame.eliminator.recommended_team;
+                const isHomeRecommended = recommendedTeam === topGame.home_team.abbr;
+                const teamData = isHomeRecommended ? topGame.home_team : topGame.away_team;
+
+                // Update the content
+                document.getElementById('top-pick-logo').src = teamData.logo;
+                document.getElementById('top-pick-team').textContent = teamData.name;
+                document.getElementById('top-pick-confidence').textContent =
+                    `${Math.round(topGame.eliminator.safety_score || 0)}% Confidence`;
+
+                const spread = Math.abs(topGame.spread);
+                const details = `vs ${isHomeRecommended ? topGame.away_team.name : topGame.home_team.name} • ${spread} pt favorite`;
+                document.getElementById('top-pick-details').textContent = details;
+            }
+
             renderGameCard(game) {
                 const gameTime = new Date(game.date).toLocaleString('en-US', {
                     weekday: 'short',
@@ -2235,9 +2398,9 @@
                         </div>
 
                         <div class="weather-info ${weatherWarning ? 'weather-warning' : ''}">
-                            <span class="weather-temp">${game.weather.indoor ? 'Indoor' : game.weather.temp + '°F'}</span>
-                            <span class="weather-condition">${game.weather.condition}</span>
-                            ${game.weather.wind > 10 ? `<span>${game.weather.wind}mph wind</span>` : ''}
+                            <span class="weather-temp">${game.weather.indoor ? 'Played in Dome' : game.weather.temp + '°F'}</span>
+                            ${!game.weather.indoor ? `<span class="weather-condition">${game.weather.condition}</span>` : ''}
+                            ${!game.weather.indoor && game.weather.wind > 10 ? `<span>${game.weather.wind}mph wind</span>` : ''}
                         </div>
 
                         ${game.probabilities ? `
@@ -2460,7 +2623,7 @@
                     <div class="weather-info">
                         <h3>🌤️ Weather Conditions</h3>
                         <p>
-                            ${game.weather.indoor ? 'Indoor Game' : `${game.weather.temp}°F, ${game.weather.condition}`}
+                            ${game.weather.indoor ? 'Played in Dome' : `${game.weather.temp}°F, ${game.weather.condition}`}
                             ${game.weather.wind > 10 ? `, ${game.weather.wind}mph winds` : ''}
                         </p>
                     </div>
