@@ -313,6 +313,22 @@
             align-items: center;
             margin-bottom: 16px;
             padding-bottom: 12px;
+        }
+
+        .header-left {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .game-spread {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: #1a202c;
+            background: #e2e8f0;
+            padding: 4px 8px;
+            border-radius: 6px;
+            border-left: 3px solid #667eea;
             border-bottom: 2px solid #e2e8f0;
             background: #f8fafc;
             margin: -16px -16px 16px -16px;
@@ -469,32 +485,11 @@
             color: #e53e3e;
         }
 
-        .weather-info {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            background: #f1f5f9;
-            padding: 12px 16px;
-            border-radius: 8px;
-            margin-bottom: 15px;
-            font-size: 1rem;
-            font-weight: 500;
-            color: #1a202c;
             border: 1px solid #e2e8f0;
         }
 
-        .weather-temp {
-            font-weight: bold;
-        }
 
-        .weather-condition {
-            color: #4a5568;
-        }
 
-        .weather-warning {
-            background: #fed7d7;
-            color: #c53030;
-        }
 
         .eliminator-rec {
             background: linear-gradient(135deg, #f0fff4 0%, #f7fafc 100%);
@@ -591,12 +586,6 @@
             font-style: italic;
         }
 
-        .venue {
-            text-align: center;
-            font-size: 1rem;
-            color: #4a5568;
-            margin-top: 16px;
-            font-weight: 600;
             padding: 8px 12px;
             background: #f8fafc;
             border-radius: 8px;
@@ -1637,6 +1626,26 @@
             background: #f8fafc;
             border-radius: 8px;
             border-left: 3px solid #e2e8f0;
+        }
+
+        .click-details {
+            text-align: center;
+            margin-top: 12px;
+            padding-top: 12px;
+            border-top: 1px solid #e2e8f0;
+        }
+
+        .click-details span {
+            color: #667eea;
+            font-size: 0.9rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: color 0.2s ease;
+        }
+
+        .click-details span:hover {
+            color: #4c51bf;
+            text-decoration: underline;
         }
         .insight-item {
             font-size: 0.75rem;
@@ -2841,7 +2850,10 @@
                 return `
                     <div class="game-card" data-game-id="${game.id}" data-confidence="${game.eliminator?.confidence || 'low'}">
                         <div class="game-header">
-                            <span class="game-time">${gameTime}${game.spread !== 0 ? ` • ${game.spread > 0 ? game.away_team.abbr : game.home_team.abbr} ${spreadText}` : ''}</span>
+                            <div class="header-left">
+                                <span class="game-time">${gameTime}</span>
+                                ${game.spread !== 0 ? `<span class="game-spread">${game.spread > 0 ? game.away_team.abbr : game.home_team.abbr} ${spreadText}</span>` : ''}
+                            </div>
                             <span class="game-status status-${game.status}">${game.status}</span>
                         </div>
 
@@ -2884,17 +2896,8 @@
                                     ${game.favorite === 'home' ? game.home_team.abbr : game.away_team.abbr} ${spreadText}
                                 </span>
                             </div>
-                            <div class="betting-row">
-                                <span class="betting-label">O/U:</span>
-                                <span class="betting-value">${game.over_under}</span>
-                            </div>
                         </div>
 
-                        <div class="weather-info ${weatherWarning ? 'weather-warning' : ''}">
-                            <span class="weather-temp">${game.weather.indoor ? 'Played in Dome' : game.weather.temp + '°F'}</span>
-                            ${!game.weather.indoor ? `<span class="weather-condition">${game.weather.condition}</span>` : ''}
-                            ${!game.weather.indoor && game.weather.wind > 10 ? `<span>${game.weather.wind}mph wind</span>` : ''}
-                        </div>
 
 
                         <div class="eliminator-rec">
@@ -2931,7 +2934,10 @@
                             ${this.generateGameInsights(game)}
                         </div>
 
-                        <div class="venue">${game.venue}</div>
+                        <div class="click-details">
+                            <span>Click for more details</span>
+                        </div>
+
                     </div>
                 `;
             }
@@ -3099,19 +3105,8 @@
                             <span class="betting-label">Point Spread:</span>
                             <span class="betting-value">${game.favorite === 'home' ? game.home_team.abbr : game.away_team.abbr} ${game.spread}</span>
                         </div>
-                        <div class="betting-row">
-                            <span class="betting-label">Over/Under:</span>
-                            <span class="betting-value">${game.over_under}</span>
-                        </div>
                     </div>
 
-                    <div class="weather-info">
-                        <h3>🌤️ Weather Conditions</h3>
-                        <p>
-                            ${game.weather.indoor ? 'Played in Dome' : `${game.weather.temp}°F, ${game.weather.condition}`}
-                            ${game.weather.wind > 10 ? `, ${game.weather.wind}mph winds` : ''}
-                        </p>
-                    </div>
 
                     <div class="eliminator-rec">
                         <h3>🎯 Eliminator Recommendation</h3>
@@ -3136,9 +3131,6 @@
                         ` : ''}
                     </div>
 
-                    <div class="venue">
-                        <strong>🏟️ Venue:</strong> ${game.venue}
-                    </div>
                 `;
 
                 modal.style.display = 'block';
