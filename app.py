@@ -45,6 +45,24 @@ class NFLGameTracker:
             'NFC West': ['ARI', 'LAR', 'SF', 'SEA']
         }
         
+        # Injury data cache for ESPN integration
+        self.injury_cache = {}
+        self.injury_cache_time = None
+        self.news_cache = {}
+        self.news_cache_time = None
+
+        # ESPN Team ID mapping for injury API
+        self.espn_team_ids = {
+            'ARI': '22', 'ATL': '1', 'BAL': '33', 'BUF': '2',
+            'CAR': '29', 'CHI': '3', 'CIN': '4', 'CLE': '5',
+            'DAL': '6', 'DEN': '7', 'DET': '8', 'GB': '9',
+            'HOU': '34', 'IND': '11', 'JAX': '30', 'KC': '12',
+            'LV': '13', 'LAC': '24', 'LAR': '14', 'MIA': '15',
+            'MIN': '16', 'NE': '17', 'NO': '18', 'NYG': '19',
+            'NYJ': '20', 'PHI': '21', 'PIT': '23', 'SF': '25',
+            'SEA': '26', 'TB': '27', 'TEN': '10', 'WAS': '28'
+        }
+
         # Stadium coordinates for weather API
         self.venue_coordinates = {
             'Arrowhead Stadium': (39.0489, -94.4839),
@@ -407,7 +425,195 @@ class NFLGameTracker:
             return record.get('displayValue', '0-0')
 
         return '0-0'
-    
+
+    def get_team_injuries(self, team_abbr):
+        """Fetch injury data for a team from ESPN API"""
+        if team_abbr not in self.espn_team_ids:
+            return []
+
+        team_id = self.espn_team_ids[team_abbr]
+
+        # Check cache (30 minute cache)
+        cache_key = f"injuries_{team_abbr}"
+        if (cache_key in self.injury_cache and self.injury_cache_time and
+            (datetime.now() - self.injury_cache_time).seconds < 1800):
+            return self.injury_cache[cache_key]
+
+        try:
+            url = f"https://sports.core.api.espn.com/v2/sports/football/leagues/nfl/teams/{team_id}/injuries"
+            response = requests.get(url, headers=self.headers, timeout=10)
+
+            if response.status_code == 200:
+                data = response.json()
+                injuries = []
+
+                for item in data.get('items', []):
+                    try:
+                        injury_response = requests.get(item['$ref'], headers=self.headers, timeout=5)
+                        if injury_response.status_code == 200:
+                            injury_data = injury_response.json()
+
+                            # Extract player and injury info
+                            athlete = injury_data.get('athlete', {})
+                            injury_details = injury_data.get('details', {})
+
+                            injury_info = {
+                                'player_name': athlete.get('displayName', 'Unknown'),
+                                'position': athlete.get('position', {}).get('abbreviation', ''),
+                                'status': injury_details.get('type', 'Unknown'),
+                                'description': injury_details.get('detail', ''),
+                                'severity': self.get_injury_severity(injury_details.get('type', ''))
+                            }
+                            injuries.append(injury_info)
+                    except:
+                        continue
+
+                # Cache the results
+                self.injury_cache[cache_key] = injuries
+                self.injury_cache_time = datetime.now()
+                print(f"Fetched {len(injuries)} injuries for {team_abbr}")
+                return injuries
+
+        except Exception as e:
+            print(f"Failed to fetch injuries for {team_abbr}: {e}")
+
+        return []
+
+    def get_injury_severity(self, injury_status):
+        """Convert injury status to severity level (1-5)"""
+        severity_map = {
+            'Out': 5,           # Will not play
+            'Doubtful': 4,      # Very unlikely to play
+            'Questionable': 3,  # 50/50 chance
+            'Probable': 2,      # Likely to play
+            'Questionable - Return': 2,
+            'Day To Day': 1,    # Minor issue
+            'Unknown': 1
+        }
+        return severity_map.get(injury_status, 1)
+
+    def get_nfl_news_feed(self):
+        """Fetch latest NFL news from ESPN RSS feed"""
+        # Check cache (15 minute cache for news)
+        if (self.news_cache and self.news_cache_time and
+            (datetime.now() - self.news_cache_time).seconds < 900):
+            return self.news_cache.get('news_items', [])
+
+        try:
+            import xml.etree.ElementTree as ET
+
+            url = "https://www.espn.com/nfl/rss.xml"
+            response = requests.get(url, headers=self.headers, timeout=10)
+
+            if response.status_code == 200:
+                root = ET.fromstring(response.content)
+                news_items = []
+
+                # Parse RSS feed
+                for item in root.findall('.//item')[:10]:  # Get top 10 news items
+                    title = item.find('title')
+                    description = item.find('description')
+                    link = item.find('link')
+                    pub_date = item.find('pubDate')
+
+                    news_item = {
+                        'title': title.text if title is not None else '',
+                        'description': description.text if description is not None else '',
+                        'link': link.text if link is not None else '',
+                        'published': pub_date.text if pub_date is not None else '',
+                        'impact': self.assess_news_impact(title.text if title is not None else '')
+                    }
+                    news_items.append(news_item)
+
+                # Cache the results
+                self.news_cache = {'news_items': news_items}
+                self.news_cache_time = datetime.now()
+                print(f"Fetched {len(news_items)} news items")
+                return news_items
+
+        except Exception as e:
+            print(f"Failed to fetch NFL news: {e}")
+
+        return []
+
+    def assess_news_impact(self, title):
+        """Assess news impact level (1-5) based on keywords"""
+        high_impact_keywords = ['injured', 'out', 'suspended', 'trade', 'fired', 'arrested']
+        medium_impact_keywords = ['questionable', 'probable', 'returns', 'activated', 'signed']
+
+        title_lower = title.lower()
+
+        for keyword in high_impact_keywords:
+            if keyword in title_lower:
+                return 5
+
+        for keyword in medium_impact_keywords:
+            if keyword in title_lower:
+                return 3
+
+        return 1
+
+    def get_injury_data_for_game(self, game):
+        """Get injury data for both teams in a game"""
+        home_team = game.get('home_team', {})
+        away_team = game.get('away_team', {})
+
+        home_abbr = home_team.get('abbreviation') or home_team.get('abbr', '')
+        away_abbr = away_team.get('abbreviation') or away_team.get('abbr', '')
+
+        injury_data = {
+            'home_injuries': [],
+            'away_injuries': [],
+            'impact_summary': {
+                'home_impact': 0,
+                'away_impact': 0
+            }
+        }
+
+        # Get injuries for home team
+        if home_abbr:
+            home_injuries = self.get_team_injuries(home_abbr)
+            injury_data['home_injuries'] = home_injuries
+            # Calculate impact (higher severity = more impact)
+            injury_data['impact_summary']['home_impact'] = sum(inj.get('severity', 1) for inj in home_injuries)
+
+        # Get injuries for away team
+        if away_abbr:
+            away_injuries = self.get_team_injuries(away_abbr)
+            injury_data['away_injuries'] = away_injuries
+            # Calculate impact (higher severity = more impact)
+            injury_data['impact_summary']['away_impact'] = sum(inj.get('severity', 1) for inj in away_injuries)
+
+        return injury_data
+
+    def get_game_news(self, game):
+        """Get relevant news for teams in the game"""
+        home_team = game.get('home_team', {})
+        away_team = game.get('away_team', {})
+
+        home_name = home_team.get('name', '').lower()
+        away_name = away_team.get('name', '').lower()
+        home_abbr = home_team.get('abbreviation', '').lower()
+        away_abbr = away_team.get('abbreviation', '').lower()
+
+        # Get all news items
+        all_news = self.get_nfl_news_feed()
+
+        # Filter news relevant to this game
+        relevant_news = []
+        for news_item in all_news:
+            title_lower = news_item['title'].lower()
+            description_lower = news_item['description'].lower()
+
+            # Check if news mentions either team
+            if (home_name in title_lower or home_abbr in title_lower or
+                away_name in title_lower or away_abbr in title_lower or
+                home_name in description_lower or home_abbr in description_lower or
+                away_name in description_lower or away_abbr in description_lower):
+                relevant_news.append(news_item)
+
+        return relevant_news[:3]  # Return top 3 relevant news items
+
     def enhance_games_data(self, games):
         """Add betting lines, weather data, and injury reports to games"""
         # Fetch odds data once for all games (more efficient)
@@ -2410,6 +2616,71 @@ def debug_team_records(week):
 
         return jsonify(debug_info)
 
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/injuries/<team_abbr>')
+def get_team_injuries_endpoint(team_abbr):
+    """API endpoint to get injury data for a specific team"""
+    try:
+        injuries = nfl_tracker.get_team_injuries(team_abbr.upper())
+        return jsonify({
+            'team': team_abbr.upper(),
+            'injuries': injuries,
+            'total_injuries': len(injuries),
+            'high_impact_injuries': len([inj for inj in injuries if inj.get('severity', 1) >= 4])
+        })
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/news')
+def get_nfl_news_endpoint():
+    """API endpoint to get latest NFL news"""
+    try:
+        news = nfl_tracker.get_nfl_news_feed()
+        return jsonify({
+            'news_items': news,
+            'total_items': len(news),
+            'high_impact_news': [item for item in news if item.get('impact', 1) >= 4]
+        })
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/game-insights/<int:week>')
+def get_game_insights(week):
+    """API endpoint to get comprehensive game insights including injuries and news"""
+    try:
+        games = nfl_tracker.get_games_for_week(week)
+
+        insights = []
+        for game in games:
+            injury_data = nfl_tracker.get_injury_data_for_game(game)
+            relevant_news = nfl_tracker.get_game_news(game)
+
+            game_insight = {
+                'game_id': game.get('id', ''),
+                'matchup': f"{game.get('away_team', {}).get('abbr', 'UNK')} @ {game.get('home_team', {}).get('abbr', 'UNK')}",
+                'injury_summary': {
+                    'home_injuries': len(injury_data.get('home_injuries', [])),
+                    'away_injuries': len(injury_data.get('away_injuries', [])),
+                    'home_impact': injury_data.get('impact_summary', {}).get('home_impact', 0),
+                    'away_impact': injury_data.get('impact_summary', {}).get('away_impact', 0)
+                },
+                'news_count': len(relevant_news),
+                'high_impact_news': len([news for news in relevant_news if news.get('impact', 1) >= 4])
+            }
+            insights.append(game_insight)
+
+        return jsonify({
+            'week': week,
+            'season': nfl_tracker.current_season,
+            'insights': insights,
+            'summary': {
+                'total_games': len(insights),
+                'games_with_injuries': len([g for g in insights if g['injury_summary']['home_injuries'] > 0 or g['injury_summary']['away_injuries'] > 0]),
+                'games_with_news': len([g for g in insights if g['news_count'] > 0])
+            }
+        })
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
