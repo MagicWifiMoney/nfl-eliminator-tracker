@@ -378,17 +378,27 @@ class NFLGameTracker:
     
     def parse_team_record(self, competitor):
         """Extract team record from competitor data"""
+        # For 2025 season, use 2024 final records for better analysis
+        if self.current_season == 2025:
+            team_data = competitor.get('team', {})
+            team_abbr = team_data.get('abbreviation', '')
+            if team_abbr:
+                cached_2024_record = self.get_2024_season_record(team_abbr)
+                if cached_2024_record and cached_2024_record != '0-0':
+                    print(f"DEBUG: Using 2024 record for {team_abbr}: {cached_2024_record}")
+                    return cached_2024_record
+
         records = competitor.get('records', [])
         if records and len(records) > 0:
             return records[0].get('displayValue', '0-0')
-        
+
         # Try alternative record location
         record = competitor.get('record', {})
         if isinstance(record, list) and record:
             return record[0].get('displayValue', '0-0')
         elif isinstance(record, dict):
             return record.get('displayValue', '0-0')
-        
+
         return '0-0'
     
     def enhance_games_data(self, games):
@@ -1749,9 +1759,10 @@ class NFLGameTracker:
         # Fall back to original parsing method
         record = self.parse_team_record(competitor)
 
-        # If we get 0-0 records (early in 2025 season), try to get 2024 season records
-        if record == '0-0' and self.current_season == 2025:
+        # For 2025 season, always show 2024 final records for better analysis
+        if self.current_season == 2025 and team_abbr:
             cached_2024_record = self.get_2024_season_record(team_abbr)
+            print(f"DEBUG: Team {team_abbr} - Original: {record}, 2024 Fallback: {cached_2024_record}")
             if cached_2024_record and cached_2024_record != '0-0':
                 return cached_2024_record
 
@@ -2335,6 +2346,34 @@ def daily_refresh_status():
         'should_refresh': nfl_tracker.should_perform_daily_refresh(),
         'current_hour': datetime.now().hour
     })
+
+@app.route('/api/debug/team-records/<int:week>')
+def debug_team_records(week):
+    """Debug endpoint to test team records parsing"""
+    try:
+        # Force fresh data fetch
+        games = nfl_tracker.get_games_for_week(week)
+        debug_info = {
+            'season': nfl_tracker.current_season,
+            'week': week,
+            'total_games': len(games),
+            'sample_records': []
+        }
+
+        # Show first 3 games with detailed record info
+        for game in games[:3]:
+            away = game.get('away_team', {})
+            home = game.get('home_team', {})
+            debug_info['sample_records'].append({
+                'matchup': f"{away.get('abbr', 'UNK')} @ {home.get('abbr', 'UNK')}",
+                'away_record': away.get('record', 'N/A'),
+                'home_record': home.get('record', 'N/A')
+            })
+
+        return jsonify(debug_info)
+
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
 
 if __name__ == '__main__':
     import os
