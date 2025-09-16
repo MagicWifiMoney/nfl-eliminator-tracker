@@ -572,11 +572,11 @@ Check the console logs above for specific API error details.
             print(error_msg)
             return []
         else:
-        print(f"🆘 Using sample data for Week {week} (no cache, API failed)")
-        games = self.get_sample_data(week)
-        if self.current_season == 2025:
-            games = self.force_current_2025_records_on_games(games)
-        return games
+            print(f"🆘 Using sample data for Week {week} (no cache, API failed)")
+            games = self.get_sample_data(week)
+            if self.current_season == 2025:
+                games = self.force_current_2025_records_on_games(games)
+            return games
 
     def fetch_fresh_games_data(self, week):
         """Fetch fresh games data from ESPN API with enhanced retry logic and multiple endpoints"""
