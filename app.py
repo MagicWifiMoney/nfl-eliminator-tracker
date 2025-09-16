@@ -442,9 +442,27 @@ class NFLGameTracker:
             print(f"⚠️ Using stale cache for Week {week} (fresh data failed)")
             return self.weekly_games_cache[week_key]
 
-        # Step 4: Complete fallback
+        # Step 4: Complete fallback with detailed error reporting
         if self.strict_real_data:
-            print(f"🆘 No data available for Week {week} and strict mode enabled - returning empty list")
+            error_msg = f"""
+🆘 REAL DATA MODE: No NFL game data available for Week {week}
+
+Attempted data sources:
+• ESPN API (multiple endpoints) - Failed
+• NFL.com API - Failed
+• TheSportsDB - Failed
+• CBS Sports API - Failed
+• ESPN RSS feed - Failed
+
+This app is configured for REAL DATA ONLY mode.
+Either:
+1. ESPN/NFL APIs are temporarily down
+2. It's the off-season with no active games
+3. Network connectivity issues
+
+Check the console logs above for specific API error details.
+            """
+            print(error_msg)
             return []
         else:
             print(f"🆘 Using sample data for Week {week} (no cache, API failed)")
@@ -454,39 +472,439 @@ class NFLGameTracker:
             return games
 
     def fetch_fresh_games_data(self, week):
-        """Fetch fresh games data from ESPN API (extracted from old get_games_for_week)"""
+        """Fetch fresh games data from ESPN API with enhanced retry logic and multiple endpoints"""
+        import time
+        import random
+
+        # Enhanced headers that rotate to avoid detection
+        headers_options = [
+            {
+                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+                'Accept': 'application/json, text/plain, */*',
+                'Accept-Language': 'en-US,en;q=0.9',
+                'Accept-Encoding': 'gzip, deflate, br',
+                'DNT': '1',
+                'Connection': 'keep-alive',
+                'Upgrade-Insecure-Requests': '1'
+            },
+            {
+                'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+                'Accept': 'application/json',
+                'Cache-Control': 'no-cache',
+                'Pragma': 'no-cache'
+            },
+            {
+                'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+                'Accept': '*/*',
+                'Referer': 'https://www.espn.com/'
+            }
+        ]
+
+        # Multiple endpoint strategies - primary ESPN APIs and alternatives
         endpoints = [
+            # Primary ESPN scoreboard APIs
             f"{self.base_url}/scoreboard?week={week}&seasontype=2&year={self.current_season}",
             f"{self.base_url}/scoreboard?week={week}&seasontype=2",
             f"{self.base_url}/scoreboard?week={week}",
-            f"https://sports.core.api.espn.com/v2/sports/football/leagues/nfl/seasons/{self.current_season}/types/2/weeks/{week}/events"
+
+            # Alternative ESPN v2 API
+            f"https://sports.core.api.espn.com/v2/sports/football/leagues/nfl/seasons/{self.current_season}/types/2/weeks/{week}/events",
+
+            # ESPN mobile API
+            f"https://site.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard?week={week}&seasontype=2&year={self.current_season}",
+
+            # NFL.com official APIs
+            f"https://api.nfl.com/v1/games?season={self.current_season}&seasonType=REG&week={week}",
+            f"https://www.nfl.com/ajax/scorestrip?season={self.current_season}&seasonType=REG&week={week}",
+
+            # TheSportsDB free API
+            f"https://www.thesportsdb.com/api/v1/json/40130162/eventslastleague.php?id=4391",
+
+            # ESPN RSS feed as backup (less reliable but free)
+            f"https://www.espn.com/nfl/rss.xml",
+
+            # CBS Sports API (public endpoints)
+            f"https://www.cbssports.com/nfl/ajax/scorestrip/{self.current_season}/REG/{week}",
         ]
 
-        for url in endpoints:
-            try:
-                response = requests.get(url, headers=self.headers, timeout=15)
+        print(f"🏈 Attempting to fetch Week {week} data from {len(endpoints)} endpoints...")
 
-                if response.status_code == 200:
-                    data = response.json()
-                    games = self.parse_espn_data(data, week)
-                    if games:
-                        # Force current 2025 records for Week 3 display
-                        if self.current_season == 2025:
-                            games = self.force_current_2025_records_on_games(games)
-                        # Enhance with betting and weather data
-                        games = self.enhance_games_data(games)
-                        # Apply cross-source validation and confidence scoring (non-blocking)
-                        try:
-                            games = self.apply_cross_validation(games, week)
-                        except Exception as e:
-                            print(f"Cross-validation failed: {e}")
-                        return games
+        for attempt, url in enumerate(endpoints, 1):
+            max_retries = 2 if attempt <= 4 else 1  # More retries for primary endpoints
 
-            except Exception as e:
-                print(f"ESPN API error with {url}: {e}")
-                continue
+            for retry in range(max_retries):
+                try:
+                    # Rotate headers and add random delay to avoid rate limiting
+                    headers = random.choice(headers_options)
+                    if retry > 0:
+                        delay = random.uniform(1, 3)
+                        print(f"⏳ Retry {retry}, waiting {delay:.1f}s before request...")
+                        time.sleep(delay)
 
+                    print(f"📡 Attempt {attempt}/{len(endpoints)} (retry {retry+1}/{max_retries}): {url[:60]}...")
+
+                    response = requests.get(url, headers=headers, timeout=20)
+
+                    print(f"🔍 Response: {response.status_code} - {len(response.content)} bytes")
+
+                    if response.status_code == 200:
+                        # Handle different data sources and content types
+                        if 'rss.xml' in url:
+                            # Handle RSS feed
+                            games = self.parse_espn_rss(response.text, week)
+                        elif 'nfl.com' in url:
+                            # Handle NFL.com API
+                            data = response.json()
+                            games = self.parse_nfl_com_data(data, week)
+                        elif 'thesportsdb.com' in url:
+                            # Handle TheSportsDB API
+                            data = response.json()
+                            games = self.parse_sportsdb_data(data, week)
+                        elif 'cbssports.com' in url:
+                            # Handle CBS Sports API
+                            if response.headers.get('content-type', '').startswith('application/json'):
+                                data = response.json()
+                                games = self.parse_cbs_data(data, week)
+                            else:
+                                # CBS might return XML
+                                games = self.parse_cbs_xml(response.text, week)
+                        else:
+                            # Handle ESPN JSON response
+                            data = response.json()
+                            games = self.parse_espn_data(data, week)
+
+                        if games:
+                            print(f"✅ Successfully parsed {len(games)} games from ESPN")
+
+                            # Force current 2025 records for Week 3 display
+                            if self.current_season == 2025:
+                                games = self.force_current_2025_records_on_games(games)
+
+                            # Enhance with betting and weather data
+                            games = self.enhance_games_data(games)
+
+                            # Apply cross-source validation and confidence scoring (non-blocking)
+                            try:
+                                games = self.apply_cross_validation(games, week)
+                            except Exception as e:
+                                print(f"⚠️ Cross-validation failed: {e}")
+
+                            return games
+                        else:
+                            print(f"⚠️ Endpoint returned empty games list")
+
+                    elif response.status_code == 429:
+                        print(f"🚫 Rate limited (429), waiting before retry...")
+                        time.sleep(5)
+                    elif response.status_code == 403:
+                        print(f"🚫 Forbidden (403), trying different headers...")
+                    else:
+                        print(f"❌ HTTP {response.status_code}: {response.reason}")
+                        break  # Don't retry on other HTTP errors
+
+                except requests.exceptions.Timeout:
+                    print(f"⏰ Request timeout on attempt {retry+1}")
+                except requests.exceptions.ConnectionError:
+                    print(f"🔌 Connection error on attempt {retry+1}")
+                except Exception as e:
+                    print(f"💥 ESPN API error with {url}: {e}")
+                    break  # Don't retry on parsing errors
+
+        print(f"❌ All ESPN endpoints failed after multiple attempts")
         return None
+
+    def parse_espn_rss(self, rss_content, week):
+        """Parse ESPN RSS feed for NFL scores - fallback data source"""
+        try:
+            import xml.etree.ElementTree as ET
+            import re
+            from datetime import datetime
+
+            print(f"🔍 Parsing ESPN RSS feed for Week {week} data...")
+
+            root = ET.fromstring(rss_content)
+            games = []
+
+            # Find all items in RSS feed
+            items = root.findall('.//item')
+            current_week_games = 0
+
+            for item in items:
+                try:
+                    title = item.find('title').text if item.find('title') is not None else ''
+                    description = item.find('description').text if item.find('description') is not None else ''
+
+                    # Look for NFL game patterns in title/description
+                    # Example: "Chiefs 24, Bills 17" or "Chiefs vs Bills"
+                    game_pattern = r'(\w+(?:\s+\w+)*)\s+(?:(\d+),?\s+|vs\.?\s+)(\w+(?:\s+\w+)*)\s*(\d+)?'
+                    match = re.search(game_pattern, title)
+
+                    if match and ('NFL' in title or 'football' in description.lower()):
+                        team1, score1, team2, score2 = match.groups()
+
+                        # Basic game structure - RSS doesn't have full details
+                        game = {
+                            "id": f"rss_week_{week}_{current_week_games}",
+                            "date": datetime.now().isoformat(),
+                            "status": "completed" if score1 and score2 else "scheduled",
+                            "venue": "TBD",
+                            "home_team": {
+                                "name": team2,
+                                "abbr": self.get_team_abbr_from_name(team2),
+                                "logo": f"https://a.espncdn.com/i/teamlogos/nfl/500/{self.get_team_abbr_from_name(team2).lower()}.png",
+                                "record": "0-0",
+                                "score": int(score2) if score2 else 0
+                            },
+                            "away_team": {
+                                "name": team1,
+                                "abbr": self.get_team_abbr_from_name(team1),
+                                "logo": f"https://a.espncdn.com/i/teamlogos/nfl/500/{self.get_team_abbr_from_name(team1).lower()}.png",
+                                "record": "0-0",
+                                "score": int(score1) if score1 else 0
+                            }
+                        }
+
+                        games.append(game)
+                        current_week_games += 1
+
+                        if current_week_games >= 16:  # Limit to reasonable number
+                            break
+
+                except Exception as e:
+                    print(f"⚠️ Error parsing RSS item: {e}")
+                    continue
+
+            print(f"📰 Parsed {len(games)} games from ESPN RSS feed")
+            return games if games else None
+
+        except Exception as e:
+            print(f"❌ ESPN RSS parsing failed: {e}")
+            return None
+
+    def get_team_abbr_from_name(self, team_name):
+        """Convert team name to abbreviation for RSS parsing"""
+        name_to_abbr = {
+            'Chiefs': 'KC', 'Kansas City': 'KC',
+            'Bills': 'BUF', 'Buffalo': 'BUF',
+            'Dolphins': 'MIA', 'Miami': 'MIA',
+            'Patriots': 'NE', 'New England': 'NE',
+            'Jets': 'NYJ', 'New York Jets': 'NYJ',
+            'Ravens': 'BAL', 'Baltimore': 'BAL',
+            'Bengals': 'CIN', 'Cincinnati': 'CIN',
+            'Browns': 'CLE', 'Cleveland': 'CLE',
+            'Steelers': 'PIT', 'Pittsburgh': 'PIT',
+            'Titans': 'TEN', 'Tennessee': 'TEN',
+            'Colts': 'IND', 'Indianapolis': 'IND',
+            'Jaguars': 'JAX', 'Jacksonville': 'JAX',
+            'Texans': 'HOU', 'Houston': 'HOU',
+            'Cowboys': 'DAL', 'Dallas': 'DAL',
+            'Giants': 'NYG', 'New York Giants': 'NYG',
+            'Eagles': 'PHI', 'Philadelphia': 'PHI',
+            'Commanders': 'WAS', 'Washington': 'WAS',
+            'Packers': 'GB', 'Green Bay': 'GB',
+            'Bears': 'CHI', 'Chicago': 'CHI',
+            'Lions': 'DET', 'Detroit': 'DET',
+            'Vikings': 'MIN', 'Minnesota': 'MIN',
+            'Falcons': 'ATL', 'Atlanta': 'ATL',
+            'Panthers': 'CAR', 'Carolina': 'CAR',
+            'Saints': 'NO', 'New Orleans': 'NO',
+            'Buccaneers': 'TB', 'Tampa Bay': 'TB', 'Bucs': 'TB',
+            '49ers': 'SF', 'San Francisco': 'SF',
+            'Rams': 'LAR', 'Los Angeles Rams': 'LAR',
+            'Seahawks': 'SEA', 'Seattle': 'SEA',
+            'Cardinals': 'ARI', 'Arizona': 'ARI',
+            'Chargers': 'LAC', 'Los Angeles Chargers': 'LAC',
+            'Raiders': 'LV', 'Las Vegas': 'LV',
+            'Broncos': 'DEN', 'Denver': 'DEN'
+        }
+
+        return name_to_abbr.get(team_name, team_name[:3].upper())
+
+    def parse_nfl_com_data(self, data, week):
+        """Parse NFL.com API data"""
+        try:
+            print(f"🏈 Parsing NFL.com data for Week {week}...")
+            games = []
+
+            # NFL.com API structure can vary
+            games_list = data.get('games', data.get('data', data.get('items', [])))
+            if not isinstance(games_list, list):
+                games_list = [games_list] if games_list else []
+
+            for game_data in games_list:
+                try:
+                    home_team = game_data.get('homeTeam', {})
+                    away_team = game_data.get('awayTeam', {})
+
+                    game = {
+                        "id": game_data.get('id', f"nfl_week_{week}_{len(games)}"),
+                        "date": game_data.get('gameTime', game_data.get('date', '')),
+                        "status": game_data.get('gameStatus', 'scheduled'),
+                        "venue": game_data.get('venue', {}).get('name', 'TBD'),
+                        "home_team": {
+                            "name": home_team.get('name', home_team.get('displayName', 'Unknown')),
+                            "abbr": home_team.get('abbreviation', home_team.get('abbr', 'UNK')),
+                            "logo": home_team.get('logo', ''),
+                            "record": f"{home_team.get('wins', 0)}-{home_team.get('losses', 0)}",
+                            "score": home_team.get('score', 0)
+                        },
+                        "away_team": {
+                            "name": away_team.get('name', away_team.get('displayName', 'Unknown')),
+                            "abbr": away_team.get('abbreviation', away_team.get('abbr', 'UNK')),
+                            "logo": away_team.get('logo', ''),
+                            "record": f"{away_team.get('wins', 0)}-{away_team.get('losses', 0)}",
+                            "score": away_team.get('score', 0)
+                        }
+                    }
+                    games.append(game)
+                except Exception as e:
+                    print(f"⚠️ Error parsing NFL.com game: {e}")
+                    continue
+
+            print(f"🏈 Parsed {len(games)} games from NFL.com")
+            return games if games else None
+
+        except Exception as e:
+            print(f"❌ NFL.com parsing failed: {e}")
+            return None
+
+    def parse_sportsdb_data(self, data, week):
+        """Parse TheSportsDB API data"""
+        try:
+            print(f"🏟️ Parsing TheSportsDB data...")
+            games = []
+
+            events = data.get('events', [])
+            nfl_events = [e for e in events if 'NFL' in e.get('strLeague', '')]
+
+            for event in nfl_events[:16]:  # Limit to reasonable number
+                try:
+                    game = {
+                        "id": event.get('idEvent', f"sportsdb_week_{week}_{len(games)}"),
+                        "date": event.get('dateEvent', ''),
+                        "status": 'completed' if event.get('intHomeScore') else 'scheduled',
+                        "venue": event.get('strVenue', 'TBD'),
+                        "home_team": {
+                            "name": event.get('strHomeTeam', 'Unknown'),
+                            "abbr": self.get_team_abbr_from_name(event.get('strHomeTeam', '')),
+                            "logo": event.get('strHomeTeamBadge', ''),
+                            "record": "0-0",
+                            "score": int(event.get('intHomeScore', 0)) if event.get('intHomeScore') else 0
+                        },
+                        "away_team": {
+                            "name": event.get('strAwayTeam', 'Unknown'),
+                            "abbr": self.get_team_abbr_from_name(event.get('strAwayTeam', '')),
+                            "logo": event.get('strAwayTeamBadge', ''),
+                            "record": "0-0",
+                            "score": int(event.get('intAwayScore', 0)) if event.get('intAwayScore') else 0
+                        }
+                    }
+                    games.append(game)
+                except Exception as e:
+                    print(f"⚠️ Error parsing SportsDB event: {e}")
+                    continue
+
+            print(f"🏟️ Parsed {len(games)} games from TheSportsDB")
+            return games if games else None
+
+        except Exception as e:
+            print(f"❌ TheSportsDB parsing failed: {e}")
+            return None
+
+    def parse_cbs_data(self, data, week):
+        """Parse CBS Sports JSON data"""
+        try:
+            print(f"📺 Parsing CBS Sports data...")
+            games = []
+
+            games_data = data.get('games', data.get('body', data.get('data', [])))
+            if not isinstance(games_data, list):
+                games_data = [games_data] if games_data else []
+
+            for game_data in games_data:
+                try:
+                    home_team = game_data.get('home', {})
+                    away_team = game_data.get('away', {})
+
+                    game = {
+                        "id": game_data.get('uid', f"cbs_week_{week}_{len(games)}"),
+                        "date": game_data.get('start_time', ''),
+                        "status": game_data.get('game_state', 'scheduled'),
+                        "venue": game_data.get('venue', 'TBD'),
+                        "home_team": {
+                            "name": home_team.get('team', home_team.get('name', 'Unknown')),
+                            "abbr": home_team.get('abbr', 'UNK'),
+                            "logo": home_team.get('logo', ''),
+                            "record": home_team.get('record', '0-0'),
+                            "score": int(home_team.get('score', 0))
+                        },
+                        "away_team": {
+                            "name": away_team.get('team', away_team.get('name', 'Unknown')),
+                            "abbr": away_team.get('abbr', 'UNK'),
+                            "logo": away_team.get('logo', ''),
+                            "record": away_team.get('record', '0-0'),
+                            "score": int(away_team.get('score', 0))
+                        }
+                    }
+                    games.append(game)
+                except Exception as e:
+                    print(f"⚠️ Error parsing CBS game: {e}")
+                    continue
+
+            print(f"📺 Parsed {len(games)} games from CBS Sports")
+            return games if games else None
+
+        except Exception as e:
+            print(f"❌ CBS Sports parsing failed: {e}")
+            return None
+
+    def parse_cbs_xml(self, xml_content, week):
+        """Parse CBS Sports XML data"""
+        try:
+            import xml.etree.ElementTree as ET
+            print(f"📺 Parsing CBS Sports XML data...")
+
+            root = ET.fromstring(xml_content)
+            games = []
+
+            # Find game elements in XML
+            for game_elem in root.findall('.//game'):
+                try:
+                    home_team = game_elem.find('home')
+                    away_team = game_elem.find('away')
+
+                    if home_team is not None and away_team is not None:
+                        game = {
+                            "id": game_elem.get('id', f"cbs_xml_week_{week}_{len(games)}"),
+                            "date": game_elem.get('date', ''),
+                            "status": game_elem.get('status', 'scheduled'),
+                            "venue": game_elem.get('venue', 'TBD'),
+                            "home_team": {
+                                "name": home_team.get('name', 'Unknown'),
+                                "abbr": home_team.get('abbr', 'UNK'),
+                                "logo": '',
+                                "record": home_team.get('record', '0-0'),
+                                "score": int(home_team.get('score', 0))
+                            },
+                            "away_team": {
+                                "name": away_team.get('name', 'Unknown'),
+                                "abbr": away_team.get('abbr', 'UNK'),
+                                "logo": '',
+                                "record": away_team.get('record', '0-0'),
+                                "score": int(away_team.get('score', 0))
+                            }
+                        }
+                        games.append(game)
+                except Exception as e:
+                    print(f"⚠️ Error parsing CBS XML game: {e}")
+                    continue
+
+            print(f"📺 Parsed {len(games)} games from CBS Sports XML")
+            return games if games else None
+
+        except Exception as e:
+            print(f"❌ CBS Sports XML parsing failed: {e}")
+            return None
     
     def parse_espn_data(self, data, week=1):
         """Parse ESPN API response into our format"""
@@ -1137,45 +1555,83 @@ class NFLGameTracker:
         return False
     
     def refresh_odds_cache(self):
-        """Refresh odds cache if needed (every 10 minutes)"""
+        """Refresh odds cache if needed (every 10 minutes) with enhanced logging"""
         now = datetime.now()
-        
-        if (self.odds_cache_time is None or 
-            (now - self.odds_cache_time).total_seconds() > 600):  # 10 minutes
-            
+
+        cache_age = (now - self.odds_cache_time).total_seconds() if self.odds_cache_time else float('inf')
+        print(f"💰 Odds cache check: age={cache_age:.0f}s, threshold=600s")
+
+        if (self.odds_cache_time is None or cache_age > 600):  # 10 minutes
+            print(f"🔄 Refreshing odds cache (last refresh: {self.odds_cache_time or 'Never'})")
+
             try:
-                print("Fetching real betting odds from The Odds API...")
+                print(f"📡 Fetching real betting odds from The Odds API (key: {self.odds_api_key[:8]}...)")
                 url = "https://api.the-odds-api.com/v4/sports/americanfootball_nfl/odds"
                 params = {
                     'api_key': self.odds_api_key,
                     'regions': 'us',
                     'markets': 'h2h,spreads,totals',  # h2h = moneyline
-                    'oddsFormat': 'american'
+                    'oddsFormat': 'american',
+                    'dateFormat': 'iso'
                 }
-                
-                response = requests.get(url, params=params, timeout=10)
-                
+
+                print(f"🎯 Request URL: {url}")
+                print(f"🎯 Request params: {dict(params, api_key='[HIDDEN]')}")
+
+                response = requests.get(url, params=params, timeout=15)
+
+                print(f"📊 Odds API Response: {response.status_code} - {len(response.content)} bytes")
+
                 if response.status_code == 200:
                     new_odds_data = response.json()
+
+                    print(f"🎲 Received {len(new_odds_data)} games with odds data")
+
+                    # Log sample of odds data structure
+                    if new_odds_data:
+                        sample_game = new_odds_data[0]
+                        print(f"📋 Sample odds structure: {list(sample_game.keys())}")
+                        if 'bookmakers' in sample_game:
+                            print(f"📚 Bookmakers available: {len(sample_game['bookmakers'])}")
 
                     # Track historical odds for line movement analysis
                     self.track_odds_history(new_odds_data, now)
 
                     self.odds_cache = new_odds_data
                     self.odds_cache_time = now
-                    print(f"Successfully cached {len(self.odds_cache)} games with real betting odds")
+                    print(f"✅ Successfully cached {len(self.odds_cache)} games with real betting odds")
 
                     # Analyze line movements after updating cache
                     self.analyze_line_movements()
+
+                    # Test odds matching with first game
+                    if new_odds_data:
+                        sample_odds = new_odds_data[0]
+                        print(f"🧪 Test odds game: {sample_odds.get('home_team', 'N/A')} vs {sample_odds.get('away_team', 'N/A')}")
+
                 else:
-                    print(f"Odds API returned status code: {response.status_code}")
+                    print(f"❌ Odds API returned status code: {response.status_code}")
+                    print(f"❌ Response content: {response.text[:500]}")
+
                     if response.status_code == 401:
-                        print("Invalid API key for The Odds API")
+                        print("🚫 Invalid API key for The Odds API - check your API key")
                     elif response.status_code == 429:
-                        print("Rate limit exceeded for The Odds API")
-                        
+                        print("🚫 Rate limit exceeded for The Odds API - try again later")
+                    elif response.status_code == 422:
+                        print("🚫 Invalid request parameters for The Odds API")
+
+            except requests.exceptions.Timeout:
+                print(f"⏰ Timeout fetching odds from The Odds API")
+            except requests.exceptions.ConnectionError:
+                print(f"🔌 Connection error fetching odds from The Odds API")
             except Exception as e:
-                print(f"Error fetching odds cache: {e}")
+                print(f"💥 Error fetching odds cache: {e}")
+                import traceback
+                print(f"📋 Full traceback: {traceback.format_exc()}")
+        else:
+            print(f"⚡ Using cached odds (age: {cache_age:.0f}s)")
+            if self.odds_cache:
+                print(f"📊 Current cache contains {len(self.odds_cache)} games")
     
     def get_betting_data(self, game):
         """Get betting lines for a game - try real odds API first"""
@@ -1199,62 +1655,157 @@ class NFLGameTracker:
         return self.get_mock_betting_data(game)
     
     def get_real_betting_odds_for_game(self, game):
-        """Get real betting odds from cached data"""
+        """Get real betting odds from cached data with enhanced matching and logging"""
         if not self.odds_cache:
+            print(f"⚠️ No odds cache available for game matching")
             return None
-        
+
         try:
             # Match this game to cached odds data
             home_team = game.get('home_team', {}).get('name', '')
             away_team = game.get('away_team', {}).get('name', '')
-            
-            for odds_game in self.odds_cache:
-                if (self.teams_match(odds_game.get('home_team', ''), home_team) and 
-                    self.teams_match(odds_game.get('away_team', ''), away_team)):
-                    
-                    return self.parse_odds_data(odds_game)
-                    
+            home_abbr = game.get('home_team', {}).get('abbr', '')
+            away_abbr = game.get('away_team', {}).get('abbr', '')
+
+            print(f"🎯 Looking for odds match: {away_team} ({away_abbr}) @ {home_team} ({home_abbr})")
+
+            # Try matching with multiple team identifiers
+            for i, odds_game in enumerate(self.odds_cache):
+                odds_home = odds_game.get('home_team', '')
+                odds_away = odds_game.get('away_team', '')
+
+                # Try different matching strategies
+                home_match = (
+                    self.teams_match(odds_home, home_team) or
+                    self.teams_match(odds_home, home_abbr) or
+                    home_abbr in odds_home or
+                    odds_home in home_team
+                )
+
+                away_match = (
+                    self.teams_match(odds_away, away_team) or
+                    self.teams_match(odds_away, away_abbr) or
+                    away_abbr in odds_away or
+                    odds_away in away_team
+                )
+
+                if home_match and away_match:
+                    print(f"✅ Found odds match #{i}: {odds_away} @ {odds_home}")
+                    parsed_odds = self.parse_odds_data(odds_game)
+                    if parsed_odds:
+                        print(f"📊 Parsed odds: spread={parsed_odds.get('spread')}, favorite={parsed_odds.get('favorite')}")
+                        return parsed_odds
+                    else:
+                        print(f"⚠️ Failed to parse odds data for matched game")
+                else:
+                    # Log first few failed matches for debugging
+                    if i < 3:
+                        print(f"❌ No match #{i}: {odds_away} @ {odds_home}")
+
+            print(f"❌ No odds match found for {away_team} @ {home_team}")
+            print(f"📋 Available odds games: {[(g.get('away_team'), g.get('home_team')) for g in self.odds_cache[:3]]}")
+
         except Exception as e:
-            print(f"Error matching game to cached odds: {e}")
-        
+            print(f"💥 Error matching game to cached odds: {e}")
+            import traceback
+            print(f"📋 Full traceback: {traceback.format_exc()}")
+
         return None
     
     def teams_match(self, api_team, game_team):
-        """Check if team names match between APIs"""
+        """Enhanced team matching between different APIs with comprehensive mapping"""
         if not api_team or not game_team:
             return False
-        
+
         # Normalize team names for matching
-        api_team_clean = api_team.lower().replace(' ', '')
-        game_team_clean = game_team.lower().replace(' ', '')
-        
-        # Handle common variations
-        name_variations = {
-            'losangelesrams': ['rams', 'larams'],
-            'losangeleschargers': ['chargers', 'lachargers'],
-            'newyorkgiants': ['giants', 'nygiants'],
-            'newyorkjets': ['jets', 'nyjets'],
-            'newenglandpatriots': ['patriots', 'newengland'],
-            'greenbaypackers': ['packers', 'greenbay'],
-            'tampabaybucs': ['buccaneers', 'tampabay', 'bucs'],
-            'kansascitychiefs': ['chiefs', 'kansascity'],
-            'sanfrancisco49ers': ['49ers', 'sanfrancisco'],
-            'lasvegasraiders': ['raiders', 'lasvegas', 'oaklandraiders']
+        api_team_clean = api_team.lower().replace(' ', '').replace('.', '')
+        game_team_clean = game_team.lower().replace(' ', '').replace('.', '')
+
+        # Comprehensive team name mapping for both directions
+        team_mappings = {
+            # Full names to nicknames and abbreviations
+            'arizonacardinals': ['cardinals', 'ari', 'arizona'],
+            'atlantafalcons': ['falcons', 'atl', 'atlanta'],
+            'baltimoreravens': ['ravens', 'bal', 'baltimore'],
+            'buffalobills': ['bills', 'buf', 'buffalo'],
+            'carolinapanthers': ['panthers', 'car', 'carolina'],
+            'chicagobears': ['bears', 'chi', 'chicago'],
+            'cincinnatibengals': ['bengals', 'cin', 'cincinnati'],
+            'clevelandbrowns': ['browns', 'cle', 'cleveland'],
+            'dallascowboys': ['cowboys', 'dal', 'dallas'],
+            'denverbroncos': ['broncos', 'den', 'denver'],
+            'detroitlions': ['lions', 'det', 'detroit'],
+            'greenbaypackers': ['packers', 'gb', 'greenbay'],
+            'houstontexans': ['texans', 'hou', 'houston'],
+            'indianapoliscolts': ['colts', 'ind', 'indianapolis', 'indy'],
+            'jacksonvillejaguars': ['jaguars', 'jax', 'jacksonville', 'jags'],
+            'kansascitychiefs': ['chiefs', 'kc', 'kansascity', 'kansas'],
+            'lasvegasraiders': ['raiders', 'lv', 'lasvegas', 'oaklandraiders', 'oak'],
+            'losangeleschargers': ['chargers', 'lac', 'losangeles', 'lachargers'],
+            'losangelesrams': ['rams', 'lar', 'losangeles', 'larams'],
+            'miamidolphins': ['dolphins', 'mia', 'miami'],
+            'minnesotavikings': ['vikings', 'min', 'minnesota'],
+            'newenglandpatriots': ['patriots', 'ne', 'newengland', 'pats'],
+            'neworleanssaints': ['saints', 'no', 'neworleans'],
+            'newyorkgiants': ['giants', 'nyg', 'newyork'],
+            'newyorkjets': ['jets', 'nyj', 'newyork'],
+            'philadelphiaeagles': ['eagles', 'phi', 'philadelphia'],
+            'pittsburghsteelers': ['steelers', 'pit', 'pittsburgh'],
+            'sanfrancisco49ers': ['49ers', 'sf', 'sanfrancisco', 'niners'],
+            'seattleseahawks': ['seahawks', 'sea', 'seattle'],
+            'tampabaybuccaneers': ['buccaneers', 'tb', 'tampabay', 'bucs'],
+            'tennesseetitans': ['titans', 'ten', 'tennessee'],
+            'washingtoncommanders': ['commanders', 'wsh', 'was', 'washington'],
         }
-        
+
+        # Reverse mapping from nicknames/abbreviations to full names
+        reverse_mappings = {}
+        for full_name, variations in team_mappings.items():
+            for variation in variations:
+                reverse_mappings[variation] = full_name
+
         # Direct match
         if api_team_clean == game_team_clean:
             return True
-        
-        # Check variations
-        for canonical, variations in name_variations.items():
-            if api_team_clean == canonical and any(var in game_team_clean for var in variations):
+
+        # Check if api_team maps to any variation of game_team
+        if api_team_clean in team_mappings:
+            if game_team_clean in team_mappings[api_team_clean]:
                 return True
-            if game_team_clean == canonical and any(var in api_team_clean for var in variations):
+
+        # Check if game_team maps to any variation of api_team
+        if game_team_clean in team_mappings:
+            if api_team_clean in team_mappings[game_team_clean]:
                 return True
-        
-        # Check if one contains the other
-        return api_team_clean in game_team_clean or game_team_clean in api_team_clean
+
+        # Check reverse mappings
+        if api_team_clean in reverse_mappings:
+            full_name = reverse_mappings[api_team_clean]
+            if game_team_clean in team_mappings.get(full_name, []) or game_team_clean == full_name:
+                return True
+
+        if game_team_clean in reverse_mappings:
+            full_name = reverse_mappings[game_team_clean]
+            if api_team_clean in team_mappings.get(full_name, []) or api_team_clean == full_name:
+                return True
+
+        # Additional fuzzy matching for common variations
+        fuzzy_matches = [
+            ('washingtoncommanders', ['washingtonredskins', 'redskins', 'footballteam']),
+            ('lasvegasraiders', ['oaklandraiders', 'oakland']),
+            ('losangeleschargers', ['sandiegochargers', 'sandiego']),
+            ('losangelesrams', ['stlouisrams', 'stlouis']),
+        ]
+
+        for base_team, variations in fuzzy_matches:
+            if api_team_clean == base_team and any(var in game_team_clean for var in variations):
+                return True
+            if game_team_clean == base_team and any(var in api_team_clean for var in variations):
+                return True
+
+        # Final fallback: check if one contains the other (for partial matches)
+        return (len(api_team_clean) > 3 and api_team_clean in game_team_clean) or \
+               (len(game_team_clean) > 3 and game_team_clean in api_team_clean)
     
     def parse_odds_data(self, odds_game):
         """Parse odds data from The Odds API with correct favorite mapping.
@@ -1682,7 +2233,8 @@ class NFLGameTracker:
     
     def get_advanced_eliminator_analysis(self, game):
         """Enhanced eliminator pool analysis with probability-based multi-factor confidence scoring"""
-        spread = abs(game.get('spread', 0))
+        spread_value = game.get('spread', 0)
+        spread = abs(spread_value) if spread_value is not None else 0
         weather = game.get('weather', {})
         home_team = game.get('home_team', {})
         away_team = game.get('away_team', {})
@@ -1911,7 +2463,8 @@ class NFLGameTracker:
     
     def calculate_value_score(self, game, safety_score):
         """Calculate value score for the pick (0-100)"""
-        spread = abs(game.get('spread', 0))
+        spread_value = game.get('spread', 0)
+        spread = abs(spread_value) if spread_value is not None else 0
         over_under = game.get('over_under', 45)
         
         # Base value on spread size vs safety
@@ -2659,6 +3212,28 @@ nfl_tracker.start_weekly_scheduler()
 @app.route('/')
 def index():
     return render_template('index.html')
+
+@app.route('/beta')
+def index_beta():
+    """Serve the existing index.html but inject a beta stylesheet for safe visual experiments.
+
+    This keeps the main dashboard untouched. Visit /beta to see the experimental styling.
+    """
+    try:
+        import os
+        template_path = os.path.join(os.path.dirname(__file__), 'templates', 'index.html')
+        with open(template_path, 'r', encoding='utf-8') as f:
+            html = f.read()
+
+        injection = "\n    <link rel=\"stylesheet\" href=\"/static/index_beta.css\">\n"
+        if '</head>' in html:
+            html = html.replace('</head>', f'{injection}</head>')
+        else:
+            # Fallback: prepend link at the start if no head tag is found
+            html = injection + html
+        return html
+    except Exception as e:
+        return f"Beta view failed to load: {e}", 500
 
 @app.route('/api/current-week')
 def get_current_week():

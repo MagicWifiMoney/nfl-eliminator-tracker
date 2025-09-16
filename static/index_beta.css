@@ -1,0 +1,30 @@
+/* Beta-only visual tweaks. Safe to remove. */
+
+:root {
+  --ink: #0f172a;
+  --muted: #64748b;
+  --chip: #e2e8f0;
+  --accent: #2563eb;
+}
+
+/* Chip-style filters: compact and scrollable */
+.filters { position: sticky; top: 64px; z-index: 10; }
+.filters .filter-btn { border-radius: 999px; padding: 8px 14px; border-color: var(--chip); }
+
+/* Game card header badges */
+.betting-row .betting-value { font-weight: 800; }
+
+/* Confidence chip colors */
+.confidence-high { background: #ecfdf5 !important; color: #16a34a !important; }
+.confidence-medium { background: #fffbeb !important; color: #f59e0b !important; }
+.confidence-low { background: #fef2f2 !important; color: #ef4444 !important; }
+
+/* Subtle card hover */
+.game-card:hover { transform: translateY(-2px); }
+
+/* Skeletons for loading states */
+.skeleton { background: linear-gradient(90deg, #f3f4f6 25%, #e5e7eb 37%, #f3f4f6 63%); background-size: 400% 100%; animation: pulse 1.4s ease infinite; }
+@keyframes pulse { 0%{background-position:100% 50%} 100%{background-position:0 50%} }
+
+/* Compact insights */
+.insight-item { font-size: 12px; }
