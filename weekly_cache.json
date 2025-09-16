@@ -1,0 +1,2013 @@
+{
+  "games": {
+    "1": [
+      {
+        "id": "401772510",
+        "date": "2025-09-05T00:20Z",
+        "status": "final",
+        "venue": "Lincoln Financial Field",
+        "home_team": {
+          "id": "21",
+          "name": "Philadelphia Eagles",
+          "abbr": "PHI",
+          "record": "2-0",
+          "score": 24,
+          "logo": "https://a.espncdn.com/i/teamlogos/nfl/500/phi.png",
+          "colors": {
+            "primary": "#004C54",
+            "secondary": "#A5ACAF"
+          }
+        },
+        "home_score": 24,
+        "away_team": {
+          "id": "6",
+          "name": "Dallas Cowboys",
+          "abbr": "DAL",
+          "record": "1-1",
+          "score": 20,
+          "logo": "https://a.espncdn.com/i/teamlogos/nfl/500/dal.png",
+          "colors": {
+            "primary": "#003594",
+            "secondary": "#869397"
+          }
+        },
+        "away_score": 20,
+        "spread": null,
+        "favorite": null,
+        "over_under": null,
+        "home_moneyline": null,
+        "away_moneyline": null,
+        "betting": {
+          "home_moneyline": null,
+          "away_moneyline": null
+        },
+        "weather": {
+          "temp": 69,
+          "condition": "Cloudy",
+          "wind": 13,
+          "indoor": false
+        },
+        "injuries": {
+          "home_team": [],
+          "away_team": [],
+          "impact_score": 0,
+          "warnings": []
+        },
+        "analytics": {
+          "home_team": {},
+          "away_team": {},
+          "matchup_advantages": [],
+          "key_stats_comparison": {}
+        },
+        "news": [],
+        "probabilities": {
+          "home_probability": 50.0,
+          "away_probability": 50.0,
+          "confidence_level": "low",
+          "method": "spread"
+        },
+        "advanced_metrics": {
+          "home_team": {
+            "elo": {
+              "rating": 1615,
+              "tier": "Elite",
+              "base_rating": 1600,
+              "variance": 15
+            },
+            "strength_of_schedule": {
+              "season_sos": 0.582,
+              "played_sos": 0.576,
+              "remaining_sos": 0.588,
+              "played_games": 1,
+              "remaining_games": 17,
+              "sos_rank": 12,
+              "difficulty": "Hard"
+            },
+            "rest_advantage": 3,
+            "travel_distance": 2222,
+            "home_record": "7-1",
+            "road_record": "4-5",
+            "last_5_games": "3-3",
+            "division_record": "5-0",
+            "vs_winning_teams": "2-5",
+            "in_primetime": "2-0"
+          },
+          "away_team": {
+            "elo": {
+              "rating": 1512,
+              "tier": "Elite",
+              "base_rating": 1560,
+              "variance": -48
+            },
+            "strength_of_schedule": {
+              "season_sos": 0.531,
+              "played_sos": 0.421,
+              "remaining_sos": 0.641,
+              "played_games": 1,
+              "remaining_games": 17,
+              "sos_rank": 25,
+              "difficulty": "Medium"
+            },
+            "rest_advantage": 3,
+            "travel_distance": 1545,
+            "home_record": "7-5",
+            "road_record": "5-4",
+            "last_5_games": "5-2",
+            "division_record": "4-0",
+            "vs_winning_teams": "1-4",
+            "in_primetime": "1-1"
+          }
+        },
+        "divisional": true,
+        "confidence": 0.7
+      },
+      {
+        "id": "401772714",
+        "date": "2025-09-06T00:00Z",
+        "status": "final",
+        "venue": "Corinthians Arena",
+        "home_team": {
+          "id": "24",
+          "name": "Los Angeles Chargers",
+          "abbr": "LAC",
+          "record": "2-0",
+          "score": 27,
+          "logo": "https://a.espncdn.com/i/teamlogos/nfl/500/lac.png",
+          "colors": {
+            "primary": "#0080C6",
+            "secondary": "#FFC20E"
+          }
+        },
+        "home_score": 27,
+        "away_team": {
+          "id": "12",
+          "name": "Kansas City Chiefs",
+          "abbr": "KC",
+          "record": "2-0",
+          "score": 21,
+          "logo": "https://a.espncdn.com/i/teamlogos/nfl/500/kc.png",
+          "colors": {
+            "primary": "#E31837",
+            "secondary": "#FFB81C"
+          }
+        },
+        "away_score": 21,
+        "spread": null,
+        "favorite": null,
+        "over_under": null,
+        "home_moneyline": null,
+        "away_moneyline": null,
+        "betting": {
+          "home_moneyline": null,
+          "away_moneyline": null
+        },
+        "weather": {
+          "temp": null,
+          "condition": null,
+          "wind": null,
+          "indoor": false
+        },
+        "injuries": {
+          "home_team": [],
+          "away_team": [],
+          "impact_score": 0,
+          "warnings": []
+        },
+        "analytics": {
+          "home_team": {},
+          "away_team": {},
+          "matchup_advantages": [],
+          "key_stats_comparison": {}
+        },
+        "news": [
+          {
+            "headline": "Fantasy football rankings for Week 3: IDP",
+            "description": "Weekly fantasy football draft rankings for IDP leagues from Mike Clay, Tristan H. Cockcroft and Eric Moody.",
+            "published": "2025-09-16T14:56:00Z",
+            "source": "ESPN"
+          },
+          {
+            "headline": "Fantasy football rankings for Week 3: Kicker",
+            "description": "Fantasy football rankings from Matt Bowen, Mike Clay, Tristan H. Cockcroft, Daniel Dopp, Eric Karabell, Liz Loza, Eric Moody and Field Yates.",
+            "published": "2025-09-16T14:56:00Z",
+            "source": "ESPN"
+          },
+          {
+            "headline": "Fantasy football rankings for Week 3: Wide receiver",
+            "description": "Fantasy football rankings from Matt Bowen, Mike Clay, Tristan H. Cockcroft, Daniel Dopp, Eric Karabell, Liz Loza, Eric Moody and Field Yates.",
+            "published": "2025-09-16T14:55:00Z",
+            "source": "ESPN"
+          }
+        ],
+        "probabilities": {
+          "home_probability": 50.0,
+          "away_probability": 50.0,
+          "confidence_level": "low",
+          "method": "spread"
+        },
+        "advanced_metrics": {
+          "home_team": {
+            "elo": {
+              "rating": 1553,
+              "tier": "Strong",
+              "base_rating": 1540,
+              "variance": 13
+            },
+            "strength_of_schedule": {
+              "season_sos": 0.508,
+              "played_sos": 0.379,
+              "remaining_sos": 0.636,
+              "played_games": 1,
+              "remaining_games": 17,
+              "sos_rank": 9,
+              "difficulty": "Medium"
+            },
+            "rest_advantage": 6,
+            "travel_distance": 1525,
+            "home_record": "4-3",
+            "road_record": "5-4",
+            "last_5_games": "2-1",
+            "division_record": "4-0",
+            "vs_winning_teams": "2-2",
+            "in_primetime": "0-1"
+          },
+          "away_team": {
+            "elo": {
+              "rating": 1617,
+              "tier": "Elite",
+              "base_rating": 1650,
+              "variance": -33
+            },
+            "strength_of_schedule": {
+              "season_sos": 0.61,
+              "played_sos": 0.65,
+              "remaining_sos": 0.57,
+              "played_games": 1,
+              "remaining_games": 17,
+              "sos_rank": 31,
+              "difficulty": "Hard"
+            },
+            "rest_advantage": 10,
+            "travel_distance": 579,
+            "home_record": "7-5",
+            "road_record": "2-5",
+            "last_5_games": "2-1",
+            "division_record": "1-4",
+            "vs_winning_teams": "1-3",
+            "in_primetime": "0-0"
+          }
+        },
+        "divisional": true,
+        "confidence": 0.7
+      },
+      {
+        "id": "401772830",
+        "date": "2025-09-07T17:00Z",
+        "status": "final",
+        "venue": "Mercedes-Benz Stadium",
+        "home_team": {
+          "id": "1",
+          "name": "Atlanta Falcons",
+          "abbr": "ATL",
+          "record": "1-1",
+          "score": 20,
+          "logo": "https://a.espncdn.com/i/teamlogos/nfl/500/atl.png",
+          "colors": {
+            "primary": "#A71930",
+            "secondary": "#000000"
+          }
+        },
+        "home_score": 20,
+        "away_team": {
+          "id": "27",
+          "name": "Tampa Bay Buccaneers",
+          "abbr": "TB",
+          "record": "1-0",
+          "score": 23,
+          "logo": "https://a.espncdn.com/i/teamlogos/nfl/500/tb.png",
+          "colors": {
+            "primary": "#D50A0A",
+            "secondary": "#FF7900"
+          }
+        },
+        "away_score": 23,
+        "spread": null,
+        "favorite": null,
+        "over_under": null,
+        "home_moneyline": null,
+        "away_moneyline": null,
+        "betting": {
+          "home_moneyline": null,
+          "away_moneyline": null
+        },
+        "weather": {
+          "temp": 72,
+          "condition": "Indoor",
+          "wind": 0,
+          "indoor": true
+        },
+        "injuries": {
+          "home_team": [],
+          "away_team": [],
+          "impact_score": 0,
+          "warnings": []
+        },
+        "analytics": {
+          "home_team": {},
+          "away_team": {},
+          "matchup_advantages": [],
+          "key_stats_comparison": {}
+        },
+        "news": [
+          {
+            "headline": "Fantasy football rankings for Week 3: IDP",
+            "description": "Weekly fantasy football draft rankings for IDP leagues from Mike Clay, Tristan H. Cockcroft and Eric Moody.",
+            "published": "2025-09-16T14:56:00Z",
+            "source": "ESPN"
+          },
+          {
+            "headline": "Fantasy football rankings for Week 3: Kicker",
+            "description": "Fantasy football rankings from Matt Bowen, Mike Clay, Tristan H. Cockcroft, Daniel Dopp, Eric Karabell, Liz Loza, Eric Moody and Field Yates.",
+            "published": "2025-09-16T14:56:00Z",
+            "source": "ESPN"
+          },
+          {
+            "headline": "Fantasy football rankings for Week 3: Wide receiver",
+            "description": "Fantasy football rankings from Matt Bowen, Mike Clay, Tristan H. Cockcroft, Daniel Dopp, Eric Karabell, Liz Loza, Eric Moody and Field Yates.",
+            "published": "2025-09-16T14:55:00Z",
+            "source": "ESPN"
+          }
+        ],
+        "probabilities": {
+          "home_probability": 50.0,
+          "away_probability": 50.0,
+          "confidence_level": "low",
+          "method": "spread"
+        },
+        "advanced_metrics": {
+          "home_team": {
+            "elo": {
+              "rating": 1419,
+              "tier": "Average",
+              "base_rating": 1420,
+              "variance": -1
+            },
+            "strength_of_schedule": {
+              "season_sos": 0.461,
+              "played_sos": 0.525,
+              "remaining_sos": 0.397,
+              "played_games": 1,
+              "remaining_games": 17,
+              "sos_rank": 18,
+              "difficulty": "Medium"
+            },
+            "rest_advantage": 3,
+            "travel_distance": 1303,
+            "home_record": "3-1",
+            "road_record": "2-2",
+            "last_5_games": "3-0",
+            "division_record": "5-0",
+            "vs_winning_teams": "1-2",
+            "in_primetime": "0-1"
+          },
+          "away_team": {
+            "elo": {
+              "rating": 1394,
+              "tier": "Average",
+              "base_rating": 1430,
+              "variance": -36
+            },
+            "strength_of_schedule": {
+              "season_sos": 0.587,
+              "played_sos": 0.544,
+              "remaining_sos": 0.63,
+              "played_games": 1,
+              "remaining_games": 17,
+              "sos_rank": 19,
+              "difficulty": "Hard"
+            },
+            "rest_advantage": 6,
+            "travel_distance": 1058,
+            "home_record": "3-4",
+            "road_record": "2-4",
+            "last_5_games": "2-1",
+            "division_record": "2-3",
+            "vs_winning_teams": "4-2",
+            "in_primetime": "2-1"
+          }
+        },
+        "divisional": true,
+        "confidence": 0.7
+      },
+      {
+        "id": "401772829",
+        "date": "2025-09-07T17:00Z",
+        "status": "final",
+        "venue": "Huntington Bank Field",
+        "home_team": {
+          "id": "5",
+          "name": "Cleveland Browns",
+          "abbr": "CLE",
+          "record": "0-2",
+          "score": 16,
+          "logo": "https://a.espncdn.com/i/teamlogos/nfl/500/cle.png",
+          "colors": {
+            "primary": "#311D00",
+            "secondary": "#FF3C00"
+          }
+        },
+        "home_score": 16,
+        "away_team": {
+          "id": "4",
+          "name": "Cincinnati Bengals",
+          "abbr": "CIN",
+          "record": "2-0",
+          "score": 17,
+          "logo": "https://a.espncdn.com/i/teamlogos/nfl/500/cin.png",
+          "colors": {
+            "primary": "#FB4F14",
+            "secondary": "#000000"
+          }
+        },
+        "away_score": 17,
+        "spread": null,
+        "favorite": null,
+        "over_under": null,
+        "home_moneyline": null,
+        "away_moneyline": null,
+        "betting": {
+          "home_moneyline": null,
+          "away_moneyline": null
+        },
+        "weather": {
+          "temp": null,
+          "condition": null,
+          "wind": null,
+          "indoor": false
+        },
+        "injuries": {
+          "home_team": [],
+          "away_team": [],
+          "impact_score": 0,
+          "warnings": []
+        },
+        "analytics": {
+          "home_team": {},
+          "away_team": {},
+          "matchup_advantages": [],
+          "key_stats_comparison": {}
+        },
+        "news": [],
+        "probabilities": {
+          "home_probability": 50.0,
+          "away_probability": 50.0,
+          "confidence_level": "low",
+          "method": "spread"
+        },
+        "advanced_metrics": {
+          "home_team": {
+            "elo": {
+              "rating": 1473,
+              "tier": "Strong",
+              "base_rating": 1490,
+              "variance": -17
+            },
+            "strength_of_schedule": {
+              "season_sos": 0.511,
+              "played_sos": 0.45,
+              "remaining_sos": 0.572,
+              "played_games": 1,
+              "remaining_games": 17,
+              "sos_rank": 1,
+              "difficulty": "Medium"
+            },
+            "rest_advantage": 6,
+            "travel_distance": 1743,
+            "home_record": "7-5",
+            "road_record": "3-6",
+            "last_5_games": "5-0",
+            "division_record": "5-0",
+            "vs_winning_teams": "2-4",
+            "in_primetime": "2-2"
+          },
+          "away_team": {
+            "elo": {
+              "rating": 1524,
+              "tier": "Elite",
+              "base_rating": 1570,
+              "variance": -46
+            },
+            "strength_of_schedule": {
+              "season_sos": 0.465,
+              "played_sos": 0.363,
+              "remaining_sos": 0.568,
+              "played_games": 1,
+              "remaining_games": 17,
+              "sos_rank": 2,
+              "difficulty": "Medium"
+            },
+            "rest_advantage": 0,
+            "travel_distance": 2195,
+            "home_record": "6-3",
+            "road_record": "5-1",
+            "last_5_games": "3-3",
+            "division_record": "4-3",
+            "vs_winning_teams": "4-3",
+            "in_primetime": "2-1"
+          }
+        },
+        "divisional": true,
+        "confidence": 0.7
+      },
+      {
+        "id": "401772719",
+        "date": "2025-09-07T17:00Z",
+        "status": "final",
+        "venue": "Lucas Oil Stadium",
+        "home_team": {
+          "id": "11",
+          "name": "Indianapolis Colts",
+          "abbr": "IND",
+          "record": "1-0",
+          "score": 33,
+          "logo": "https://a.espncdn.com/i/teamlogos/nfl/500/ind.png",
+          "colors": {
+            "primary": "#002C5F",
+            "secondary": "#A2AAAD"
+          }
+        },
+        "home_score": 33,
+        "away_team": {
+          "id": "15",
+          "name": "Miami Dolphins",
+          "abbr": "MIA",
+          "record": "0-2",
+          "score": 8,
+          "logo": "https://a.espncdn.com/i/teamlogos/nfl/500/mia.png",
+          "colors": {
+            "primary": "#008E97",
+            "secondary": "#FC4C02"
+          }
+        },
+        "away_score": 8,
+        "spread": null,
+        "favorite": null,
+        "over_under": null,
+        "home_moneyline": null,
+        "away_moneyline": null,
+        "betting": {
+          "home_moneyline": null,
+          "away_moneyline": null
+        },
+        "weather": {
+          "temp": 72,
+          "condition": "Indoor",
+          "wind": 0,
+          "indoor": true
+        },
+        "injuries": {
+          "home_team": [],
+          "away_team": [],
+          "impact_score": 0,
+          "warnings": []
+        },
+        "analytics": {
+          "home_team": {},
+          "away_team": {},
+          "matchup_advantages": [],
+          "key_stats_comparison": {}
+        },
+        "news": [],
+        "probabilities": {
+          "home_probability": 50.0,
+          "away_probability": 50.0,
+          "confidence_level": "low",
+          "method": "spread"
+        },
+        "advanced_metrics": {
+          "home_team": {
+            "elo": {
+              "rating": 1446,
+              "tier": "Average",
+              "base_rating": 1450,
+              "variance": -4
+            },
+            "strength_of_schedule": {
+              "season_sos": 0.434,
+              "played_sos": 0.51,
+              "remaining_sos": 0.358,
+              "played_games": 1,
+              "remaining_games": 17,
+              "sos_rank": 3,
+              "difficulty": "Easy"
+            },
+            "rest_advantage": 3,
+            "travel_distance": 320,
+            "home_record": "6-0",
+            "road_record": "7-1",
+            "last_5_games": "5-1",
+            "division_record": "1-4",
+            "vs_winning_teams": "1-3",
+            "in_primetime": "1-0"
+          },
+          "away_team": {
+            "elo": {
+              "rating": 1561,
+              "tier": "Elite",
+              "base_rating": 1550,
+              "variance": 11
+            },
+            "strength_of_schedule": {
+              "season_sos": 0.625,
+              "played_sos": 0.616,
+              "remaining_sos": 0.634,
+              "played_games": 1,
+              "remaining_games": 17,
+              "sos_rank": 14,
+              "difficulty": "Hard"
+            },
+            "rest_advantage": 6,
+            "travel_distance": 1217,
+            "home_record": "7-3",
+            "road_record": "2-6",
+            "last_5_games": "3-0",
+            "division_record": "1-2",
+            "vs_winning_teams": "3-4",
+            "in_primetime": "0-1"
+          }
+        },
+        "divisional": false,
+        "confidence": 0.7
+      },
+      {
+        "id": "401772720",
+        "date": "2025-09-07T17:00Z",
+        "status": "final",
+        "venue": "Gillette Stadium",
+        "home_team": {
+          "id": "17",
+          "name": "New England Patriots",
+          "abbr": "NE",
+          "record": "1-1",
+          "score": 13,
+          "logo": "https://a.espncdn.com/i/teamlogos/nfl/500/ne.png",
+          "colors": {
+            "primary": "#002244",
+            "secondary": "#C60C30"
+          }
+        },
+        "home_score": 13,
+        "away_team": {
+          "id": "13",
+          "name": "Las Vegas Raiders",
+          "abbr": "LV",
+          "record": "1-1",
+          "score": 20,
+          "logo": "https://a.espncdn.com/i/teamlogos/nfl/500/lv.png",
+          "colors": {
+            "primary": "#000000",
+            "secondary": "#A5ACAF"
+          }
+        },
+        "away_score": 20,
+        "spread": null,
+        "favorite": null,
+        "over_under": null,
+        "home_moneyline": null,
+        "away_moneyline": null,
+        "betting": {
+          "home_moneyline": null,
+          "away_moneyline": null
+        },
+        "weather": {
+          "temp": 61,
+          "condition": "Cloudy",
+          "wind": 6,
+          "indoor": false
+        },
+        "injuries": {
+          "home_team": [],
+          "away_team": [],
+          "impact_score": 0,
+          "warnings": []
+        },
+        "analytics": {
+          "home_team": {},
+          "away_team": {},
+          "matchup_advantages": [],
+          "key_stats_comparison": {}
+        },
+        "news": [
+          {
+            "headline": "Tom Brady shown in Raiders booth wearing headset during MNF",
+            "description": "Raiders minority owner Tom Brady was seen wearing a headset in the team's coaching booth during Monday's game vs. the Chargers.",
+            "published": "2025-09-16T15:09:25Z",
+            "source": "ESPN"
+          }
+        ],
+        "probabilities": {
+          "home_probability": 50.0,
+          "away_probability": 50.0,
+          "confidence_level": "low",
+          "method": "spread"
+        },
+        "advanced_metrics": {
+          "home_team": {
+            "elo": {
+              "rating": 1476,
+              "tier": "Strong",
+              "base_rating": 1470,
+              "variance": 6
+            },
+            "strength_of_schedule": {
+              "season_sos": 0.492,
+              "played_sos": 0.425,
+              "remaining_sos": 0.559,
+              "played_games": 1,
+              "remaining_games": 17,
+              "sos_rank": 12,
+              "difficulty": "Medium"
+            },
+            "rest_advantage": 6,
+            "travel_distance": 293,
+            "home_record": "8-3",
+            "road_record": "2-4",
+            "last_5_games": "5-1",
+            "division_record": "2-2",
+            "vs_winning_teams": "1-6",
+            "in_primetime": "1-1"
+          },
+          "away_team": {
+            "elo": {
+              "rating": 1509,
+              "tier": "Strong",
+              "base_rating": 1480,
+              "variance": 29
+            },
+            "strength_of_schedule": {
+              "season_sos": 0.601,
+              "played_sos": 0.594,
+              "remaining_sos": 0.609,
+              "played_games": 1,
+              "remaining_games": 17,
+              "sos_rank": 30,
+              "difficulty": "Hard"
+            },
+            "rest_advantage": 10,
+            "travel_distance": 1326,
+            "home_record": "5-4",
+            "road_record": "2-3",
+            "last_5_games": "4-2",
+            "division_record": "5-2",
+            "vs_winning_teams": "1-5",
+            "in_primetime": "0-2"
+          }
+        },
+        "divisional": false,
+        "confidence": 0.7
+      },
+      {
+        "id": "401772718",
+        "date": "2025-09-07T17:00Z",
+        "status": "final",
+        "venue": "Caesars Superdome",
+        "home_team": {
+          "id": "18",
+          "name": "New Orleans Saints",
+          "abbr": "NO",
+          "record": "0-2",
+          "score": 13,
+          "logo": "https://a.espncdn.com/i/teamlogos/nfl/500/no.png",
+          "colors": {
+            "primary": "#101820",
+            "secondary": "#D3BC8D"
+          }
+        },
+        "home_score": 13,
+        "away_team": {
+          "id": "22",
+          "name": "Arizona Cardinals",
+          "abbr": "ARI",
+          "record": "2-0",
+          "score": 20,
+          "logo": "https://a.espncdn.com/i/teamlogos/nfl/500/ari.png",
+          "colors": {
+            "primary": "#97233F",
+            "secondary": "#FFB612"
+          }
+        },
+        "away_score": 20,
+        "spread": null,
+        "favorite": null,
+        "over_under": null,
+        "home_moneyline": null,
+        "away_moneyline": null,
+        "betting": {
+          "home_moneyline": null,
+          "away_moneyline": null
+        },
+        "weather": {
+          "temp": 72,
+          "condition": "Indoor",
+          "wind": 0,
+          "indoor": true
+        },
+        "injuries": {
+          "home_team": [],
+          "away_team": [],
+          "impact_score": 0,
+          "warnings": []
+        },
+        "analytics": {
+          "home_team": {},
+          "away_team": {},
+          "matchup_advantages": [],
+          "key_stats_comparison": {}
+        },
+        "news": [
+          {
+            "headline": "Tom Brady shown in Raiders booth wearing headset during MNF",
+            "description": "Raiders minority owner Tom Brady was seen wearing a headset in the team's coaching booth during Monday's game vs. the Chargers.",
+            "published": "2025-09-16T15:09:25Z",
+            "source": "ESPN"
+          }
+        ],
+        "probabilities": {
+          "home_probability": 50.0,
+          "away_probability": 50.0,
+          "confidence_level": "low",
+          "method": "spread"
+        },
+        "advanced_metrics": {
+          "home_team": {
+            "elo": {
+              "rating": 1400,
+              "tier": "Average",
+              "base_rating": 1440,
+              "variance": -40
+            },
+            "strength_of_schedule": {
+              "season_sos": 0.42,
+              "played_sos": 0.453,
+              "remaining_sos": 0.387,
+              "played_games": 1,
+              "remaining_games": 17,
+              "sos_rank": 4,
+              "difficulty": "Easy"
+            },
+            "rest_advantage": 6,
+            "travel_distance": 586,
+            "home_record": "3-5",
+            "road_record": "7-2",
+            "last_5_games": "2-0",
+            "division_record": "4-2",
+            "vs_winning_teams": "3-2",
+            "in_primetime": "0-0"
+          },
+          "away_team": {
+            "elo": {
+              "rating": 1331,
+              "tier": "Weak",
+              "base_rating": 1370,
+              "variance": -39
+            },
+            "strength_of_schedule": {
+              "season_sos": 0.558,
+              "played_sos": 0.506,
+              "remaining_sos": 0.61,
+              "played_games": 1,
+              "remaining_games": 17,
+              "sos_rank": 15,
+              "difficulty": "Hard"
+            },
+            "rest_advantage": 3,
+            "travel_distance": 2134,
+            "home_record": "7-1",
+            "road_record": "6-5",
+            "last_5_games": "4-0",
+            "division_record": "1-3",
+            "vs_winning_teams": "2-2",
+            "in_primetime": "0-2"
+          }
+        },
+        "divisional": false,
+        "confidence": 0.7
+      },
+      {
+        "id": "401772721",
+        "date": "2025-09-07T17:00Z",
+        "status": "final",
+        "venue": "MetLife Stadium",
+        "home_team": {
+          "id": "20",
+          "name": "New York Jets",
+          "abbr": "NYJ",
+          "record": "0-2",
+          "score": 32,
+          "logo": "https://a.espncdn.com/i/teamlogos/nfl/500/nyj.png",
+          "colors": {
+            "primary": "#125740",
+            "secondary": "#000000"
+          }
+        },
+        "home_score": 32,
+        "away_team": {
+          "id": "23",
+          "name": "Pittsburgh Steelers",
+          "abbr": "PIT",
+          "record": "1-1",
+          "score": 34,
+          "logo": "https://a.espncdn.com/i/teamlogos/nfl/500/pit.png",
+          "colors": {
+            "primary": "#101820",
+            "secondary": "#FFB612"
+          }
+        },
+        "away_score": 34,
+        "spread": null,
+        "favorite": null,
+        "over_under": null,
+        "home_moneyline": null,
+        "away_moneyline": null,
+        "betting": {
+          "home_moneyline": null,
+          "away_moneyline": null
+        },
+        "weather": {
+          "temp": 67,
+          "condition": "Cloudy",
+          "wind": 10,
+          "indoor": false
+        },
+        "injuries": {
+          "home_team": [],
+          "away_team": [],
+          "impact_score": 0,
+          "warnings": []
+        },
+        "analytics": {
+          "home_team": {},
+          "away_team": {},
+          "matchup_advantages": [],
+          "key_stats_comparison": {}
+        },
+        "news": [],
+        "probabilities": {
+          "home_probability": 50.0,
+          "away_probability": 50.0,
+          "confidence_level": "low",
+          "method": "spread"
+        },
+        "advanced_metrics": {
+          "home_team": {
+            "elo": {
+              "rating": 1510,
+              "tier": "Strong",
+              "base_rating": 1520,
+              "variance": -10
+            },
+            "strength_of_schedule": {
+              "season_sos": 0.582,
+              "played_sos": 0.566,
+              "remaining_sos": 0.598,
+              "played_games": 1,
+              "remaining_games": 17,
+              "sos_rank": 1,
+              "difficulty": "Hard"
+            },
+            "rest_advantage": 10,
+            "travel_distance": 52,
+            "home_record": "5-5",
+            "road_record": "2-4",
+            "last_5_games": "4-1",
+            "division_record": "1-2",
+            "vs_winning_teams": "1-6",
+            "in_primetime": "2-0"
+          },
+          "away_team": {
+            "elo": {
+              "rating": 1468,
+              "tier": "Average",
+              "base_rating": 1460,
+              "variance": 8
+            },
+            "strength_of_schedule": {
+              "season_sos": 0.535,
+              "played_sos": 0.626,
+              "remaining_sos": 0.444,
+              "played_games": 1,
+              "remaining_games": 17,
+              "sos_rank": 11,
+              "difficulty": "Medium"
+            },
+            "rest_advantage": 0,
+            "travel_distance": 416,
+            "home_record": "4-2",
+            "road_record": "4-1",
+            "last_5_games": "2-0",
+            "division_record": "2-0",
+            "vs_winning_teams": "2-6",
+            "in_primetime": "2-1"
+          }
+        },
+        "divisional": false,
+        "confidence": 0.7
+      },
+      {
+        "id": "401772827",
+        "date": "2025-09-07T17:00Z",
+        "status": "final",
+        "venue": "Northwest Stadium",
+        "home_team": {
+          "id": "28",
+          "name": "Washington Commanders",
+          "abbr": "WSH",
+          "record": "0-0",
+          "score": 21,
+          "logo": "https://a.espncdn.com/i/teamlogos/nfl/500/wsh.png",
+          "colors": {
+            "primary": "#333333",
+            "secondary": "#666666"
+          }
+        },
+        "home_score": 21,
+        "away_team": {
+          "id": "19",
+          "name": "New York Giants",
+          "abbr": "NYG",
+          "record": "0-2",
+          "score": 6,
+          "logo": "https://a.espncdn.com/i/teamlogos/nfl/500/nyg.png",
+          "colors": {
+            "primary": "#0B2265",
+            "secondary": "#A71930"
+          }
+        },
+        "away_score": 6,
+        "spread": null,
+        "favorite": null,
+        "over_under": null,
+        "home_moneyline": null,
+        "away_moneyline": null,
+        "betting": {
+          "home_moneyline": null,
+          "away_moneyline": null
+        },
+        "weather": {
+          "temp": null,
+          "condition": null,
+          "wind": null,
+          "indoor": false
+        },
+        "injuries": {
+          "home_team": [],
+          "away_team": [],
+          "impact_score": 0,
+          "warnings": []
+        },
+        "analytics": {
+          "home_team": {},
+          "away_team": {},
+          "matchup_advantages": [],
+          "key_stats_comparison": {}
+        },
+        "news": [],
+        "probabilities": {
+          "home_probability": 50.0,
+          "away_probability": 50.0,
+          "confidence_level": "low",
+          "method": "spread"
+        },
+        "advanced_metrics": {
+          "home_team": {
+            "elo": {
+              "rating": 1405,
+              "tier": "Average",
+              "base_rating": 1400,
+              "variance": 5
+            },
+            "strength_of_schedule": {
+              "season_sos": 0.54,
+              "played_sos": 0.447,
+              "remaining_sos": 0.634,
+              "played_games": 1,
+              "remaining_games": 17,
+              "sos_rank": 28,
+              "difficulty": "Medium"
+            },
+            "rest_advantage": 6,
+            "travel_distance": 1613,
+            "home_record": "8-3",
+            "road_record": "7-1",
+            "last_5_games": "2-1",
+            "division_record": "5-3",
+            "vs_winning_teams": "1-3",
+            "in_primetime": "0-0"
+          },
+          "away_team": {
+            "elo": {
+              "rating": 1359,
+              "tier": "Weak",
+              "base_rating": 1350,
+              "variance": 9
+            },
+            "strength_of_schedule": {
+              "season_sos": 0.448,
+              "played_sos": 0.439,
+              "remaining_sos": 0.457,
+              "played_games": 1,
+              "remaining_games": 17,
+              "sos_rank": 26,
+              "difficulty": "Easy"
+            },
+            "rest_advantage": 0,
+            "travel_distance": 799,
+            "home_record": "5-4",
+            "road_record": "3-2",
+            "last_5_games": "4-0",
+            "division_record": "3-1",
+            "vs_winning_teams": "3-4",
+            "in_primetime": "0-0"
+          }
+        },
+        "divisional": false,
+        "confidence": 0.7
+      },
+      {
+        "id": "401772828",
+        "date": "2025-09-07T17:00Z",
+        "status": "final",
+        "venue": "EverBank Stadium",
+        "home_team": {
+          "id": "30",
+          "name": "Jacksonville Jaguars",
+          "abbr": "JAX",
+          "record": "1-1",
+          "score": 26,
+          "logo": "https://a.espncdn.com/i/teamlogos/nfl/500/jax.png",
+          "colors": {
+            "primary": "#101820",
+            "secondary": "#D7A22A"
+          }
+        },
+        "home_score": 26,
+        "away_team": {
+          "id": "29",
+          "name": "Carolina Panthers",
+          "abbr": "CAR",
+          "record": "0-2",
+          "score": 10,
+          "logo": "https://a.espncdn.com/i/teamlogos/nfl/500/car.png",
+          "colors": {
+            "primary": "#0085CA",
+            "secondary": "#101820"
+          }
+        },
+        "away_score": 10,
+        "spread": null,
+        "favorite": null,
+        "over_under": null,
+        "home_moneyline": null,
+        "away_moneyline": null,
+        "betting": {
+          "home_moneyline": null,
+          "away_moneyline": null
+        },
+        "weather": {
+          "temp": null,
+          "condition": null,
+          "wind": null,
+          "indoor": false
+        },
+        "injuries": {
+          "home_team": [],
+          "away_team": [],
+          "impact_score": 0,
+          "warnings": []
+        },
+        "analytics": {
+          "home_team": {},
+          "away_team": {},
+          "matchup_advantages": [],
+          "key_stats_comparison": {}
+        },
+        "news": [],
+        "probabilities": {
+          "home_probability": 50.0,
+          "away_probability": 50.0,
+          "confidence_level": "low",
+          "method": "spread"
+        },
+        "advanced_metrics": {
+          "home_team": {
+            "elo": {
+              "rating": 1538,
+              "tier": "Strong",
+              "base_rating": 1510,
+              "variance": 28
+            },
+            "strength_of_schedule": {
+              "season_sos": 0.461,
+              "played_sos": 0.508,
+              "remaining_sos": 0.413,
+              "played_games": 1,
+              "remaining_games": 17,
+              "sos_rank": 31,
+              "difficulty": "Medium"
+            },
+            "rest_advantage": 3,
+            "travel_distance": 1321,
+            "home_record": "6-3",
+            "road_record": "3-6",
+            "last_5_games": "3-3",
+            "division_record": "5-3",
+            "vs_winning_teams": "3-6",
+            "in_primetime": "0-1"
+          },
+          "away_team": {
+            "elo": {
+              "rating": 1312,
+              "tier": "Weak",
+              "base_rating": 1330,
+              "variance": -18
+            },
+            "strength_of_schedule": {
+              "season_sos": 0.42,
+              "played_sos": 0.368,
+              "remaining_sos": 0.473,
+              "played_games": 1,
+              "remaining_games": 17,
+              "sos_rank": 8,
+              "difficulty": "Easy"
+            },
+            "rest_advantage": 0,
+            "travel_distance": 1212,
+            "home_record": "6-2",
+            "road_record": "3-2",
+            "last_5_games": "4-2",
+            "division_record": "2-2",
+            "vs_winning_teams": "1-6",
+            "in_primetime": "2-1"
+          }
+        },
+        "divisional": false,
+        "confidence": 0.7
+      },
+      {
+        "id": "401772832",
+        "date": "2025-09-07T20:05Z",
+        "status": "final",
+        "venue": "Empower Field at Mile High",
+        "home_team": {
+          "id": "7",
+          "name": "Denver Broncos",
+          "abbr": "DEN",
+          "record": "1-1",
+          "score": 20,
+          "logo": "https://a.espncdn.com/i/teamlogos/nfl/500/den.png",
+          "colors": {
+            "primary": "#FB4F14",
+            "secondary": "#002244"
+          }
+        },
+        "home_score": 20,
+        "away_team": {
+          "id": "10",
+          "name": "Tennessee Titans",
+          "abbr": "TEN",
+          "record": "0-2",
+          "score": 12,
+          "logo": "https://a.espncdn.com/i/teamlogos/nfl/500/ten.png",
+          "colors": {
+            "primary": "#0C2340",
+            "secondary": "#4B92DB"
+          }
+        },
+        "away_score": 12,
+        "spread": null,
+        "favorite": null,
+        "over_under": null,
+        "home_moneyline": null,
+        "away_moneyline": null,
+        "betting": {
+          "home_moneyline": null,
+          "away_moneyline": null
+        },
+        "weather": {
+          "temp": 55,
+          "condition": "Cloudy",
+          "wind": 2,
+          "indoor": false
+        },
+        "injuries": {
+          "home_team": [],
+          "away_team": [],
+          "impact_score": 0,
+          "warnings": []
+        },
+        "analytics": {
+          "home_team": {},
+          "away_team": {},
+          "matchup_advantages": [],
+          "key_stats_comparison": {}
+        },
+        "news": [],
+        "probabilities": {
+          "home_probability": 50.0,
+          "away_probability": 50.0,
+          "confidence_level": "low",
+          "method": "spread"
+        },
+        "advanced_metrics": {
+          "home_team": {
+            "elo": {
+              "rating": 1363,
+              "tier": "Weak",
+              "base_rating": 1320,
+              "variance": 43
+            },
+            "strength_of_schedule": {
+              "season_sos": 0.497,
+              "played_sos": 0.402,
+              "remaining_sos": 0.592,
+              "played_games": 1,
+              "remaining_games": 17,
+              "sos_rank": 27,
+              "difficulty": "Medium"
+            },
+            "rest_advantage": 6,
+            "travel_distance": 961,
+            "home_record": "8-5",
+            "road_record": "2-5",
+            "last_5_games": "3-2",
+            "division_record": "5-2",
+            "vs_winning_teams": "2-2",
+            "in_primetime": "0-0"
+          },
+          "away_team": {
+            "elo": {
+              "rating": 1456,
+              "tier": "Strong",
+              "base_rating": 1500,
+              "variance": -44
+            },
+            "strength_of_schedule": {
+              "season_sos": 0.43,
+              "played_sos": 0.366,
+              "remaining_sos": 0.495,
+              "played_games": 1,
+              "remaining_games": 17,
+              "sos_rank": 27,
+              "difficulty": "Easy"
+            },
+            "rest_advantage": 6,
+            "travel_distance": 224,
+            "home_record": "6-5",
+            "road_record": "3-1",
+            "last_5_games": "5-0",
+            "division_record": "2-2",
+            "vs_winning_teams": "4-6",
+            "in_primetime": "1-2"
+          }
+        },
+        "divisional": false,
+        "confidence": 0.7
+      },
+      {
+        "id": "401772831",
+        "date": "2025-09-07T20:05Z",
+        "status": "final",
+        "venue": "Lumen Field",
+        "home_team": {
+          "id": "26",
+          "name": "Seattle Seahawks",
+          "abbr": "SEA",
+          "record": "1-1",
+          "score": 13,
+          "logo": "https://a.espncdn.com/i/teamlogos/nfl/500/sea.png",
+          "colors": {
+            "primary": "#002244",
+            "secondary": "#69BE28"
+          }
+        },
+        "home_score": 13,
+        "away_team": {
+          "id": "25",
+          "name": "San Francisco 49ers",
+          "abbr": "SF",
+          "record": "2-0",
+          "score": 17,
+          "logo": "https://a.espncdn.com/i/teamlogos/nfl/500/sf.png",
+          "colors": {
+            "primary": "#AA0000",
+            "secondary": "#B3995D"
+          }
+        },
+        "away_score": 17,
+        "spread": null,
+        "favorite": null,
+        "over_under": null,
+        "home_moneyline": null,
+        "away_moneyline": null,
+        "betting": {
+          "home_moneyline": null,
+          "away_moneyline": null
+        },
+        "weather": {
+          "temp": null,
+          "condition": null,
+          "wind": null,
+          "indoor": false
+        },
+        "injuries": {
+          "home_team": [],
+          "away_team": [],
+          "impact_score": 0,
+          "warnings": []
+        },
+        "analytics": {
+          "home_team": {},
+          "away_team": {},
+          "matchup_advantages": [],
+          "key_stats_comparison": {}
+        },
+        "news": [],
+        "probabilities": {
+          "home_probability": 50.0,
+          "away_probability": 50.0,
+          "confidence_level": "low",
+          "method": "spread"
+        },
+        "advanced_metrics": {
+          "home_team": {
+            "elo": {
+              "rating": 1395,
+              "tier": "Average",
+              "base_rating": 1390,
+              "variance": 5
+            },
+            "strength_of_schedule": {
+              "season_sos": 0.473,
+              "played_sos": 0.594,
+              "remaining_sos": 0.353,
+              "played_games": 1,
+              "remaining_games": 17,
+              "sos_rank": 19,
+              "difficulty": "Medium"
+            },
+            "rest_advantage": 0,
+            "travel_distance": 682,
+            "home_record": "5-3",
+            "road_record": "4-2",
+            "last_5_games": "4-1",
+            "division_record": "2-1",
+            "vs_winning_teams": "2-2",
+            "in_primetime": "1-1"
+          },
+          "away_team": {
+            "elo": {
+              "rating": 1567,
+              "tier": "Elite",
+              "base_rating": 1590,
+              "variance": -23
+            },
+            "strength_of_schedule": {
+              "season_sos": 0.576,
+              "played_sos": 0.562,
+              "remaining_sos": 0.59,
+              "played_games": 1,
+              "remaining_games": 17,
+              "sos_rank": 14,
+              "difficulty": "Hard"
+            },
+            "rest_advantage": 6,
+            "travel_distance": 1879,
+            "home_record": "7-2",
+            "road_record": "6-4",
+            "last_5_games": "2-1",
+            "division_record": "1-1",
+            "vs_winning_teams": "2-6",
+            "in_primetime": "1-0"
+          }
+        },
+        "divisional": true,
+        "confidence": 0.7
+      },
+      {
+        "id": "401772722",
+        "date": "2025-09-07T20:25Z",
+        "status": "final",
+        "venue": "Lambeau Field",
+        "home_team": {
+          "id": "9",
+          "name": "Green Bay Packers",
+          "abbr": "GB",
+          "record": "2-0",
+          "score": 27,
+          "logo": "https://a.espncdn.com/i/teamlogos/nfl/500/gb.png",
+          "colors": {
+            "primary": "#203731",
+            "secondary": "#FFB612"
+          }
+        },
+        "home_score": 27,
+        "away_team": {
+          "id": "8",
+          "name": "Detroit Lions",
+          "abbr": "DET",
+          "record": "1-1",
+          "score": 13,
+          "logo": "https://a.espncdn.com/i/teamlogos/nfl/500/det.png",
+          "colors": {
+            "primary": "#0076B6",
+            "secondary": "#B0B7BC"
+          }
+        },
+        "away_score": 13,
+        "spread": null,
+        "favorite": null,
+        "over_under": null,
+        "home_moneyline": null,
+        "away_moneyline": null,
+        "betting": {
+          "home_moneyline": null,
+          "away_moneyline": null
+        },
+        "weather": {
+          "temp": 60,
+          "condition": "Mist",
+          "wind": 4,
+          "indoor": false
+        },
+        "injuries": {
+          "home_team": [],
+          "away_team": [],
+          "impact_score": 0,
+          "warnings": []
+        },
+        "analytics": {
+          "home_team": {},
+          "away_team": {},
+          "matchup_advantages": [],
+          "key_stats_comparison": {}
+        },
+        "news": [],
+        "probabilities": {
+          "home_probability": 50.0,
+          "away_probability": 50.0,
+          "confidence_level": "low",
+          "method": "spread"
+        },
+        "advanced_metrics": {
+          "home_team": {
+            "elo": {
+              "rating": 1371,
+              "tier": "Average",
+              "base_rating": 1410,
+              "variance": -39
+            },
+            "strength_of_schedule": {
+              "season_sos": 0.439,
+              "played_sos": 0.459,
+              "remaining_sos": 0.418,
+              "played_games": 1,
+              "remaining_games": 17,
+              "sos_rank": 21,
+              "difficulty": "Easy"
+            },
+            "rest_advantage": 0,
+            "travel_distance": 221,
+            "home_record": "5-2",
+            "road_record": "3-4",
+            "last_5_games": "2-1",
+            "division_record": "3-0",
+            "vs_winning_teams": "2-5",
+            "in_primetime": "1-0"
+          },
+          "away_team": {
+            "elo": {
+              "rating": 1353,
+              "tier": "Average",
+              "base_rating": 1400,
+              "variance": -47
+            },
+            "strength_of_schedule": {
+              "season_sos": 0.552,
+              "played_sos": 0.484,
+              "remaining_sos": 0.621,
+              "played_games": 1,
+              "remaining_games": 17,
+              "sos_rank": 2,
+              "difficulty": "Hard"
+            },
+            "rest_advantage": 10,
+            "travel_distance": 678,
+            "home_record": "7-5",
+            "road_record": "7-5",
+            "last_5_games": "4-0",
+            "division_record": "2-3",
+            "vs_winning_teams": "2-5",
+            "in_primetime": "2-2"
+          }
+        },
+        "divisional": true,
+        "confidence": 0.7
+      },
+      {
+        "id": "401772723",
+        "date": "2025-09-07T20:25Z",
+        "status": "final",
+        "venue": "SoFi Stadium",
+        "home_team": {
+          "id": "14",
+          "name": "Los Angeles Rams",
+          "abbr": "LAR",
+          "record": "2-0",
+          "score": 14,
+          "logo": "https://a.espncdn.com/i/teamlogos/nfl/500/lar.png",
+          "colors": {
+            "primary": "#003594",
+            "secondary": "#FFA300"
+          }
+        },
+        "home_score": 14,
+        "away_team": {
+          "id": "34",
+          "name": "Houston Texans",
+          "abbr": "HOU",
+          "record": "0-1",
+          "score": 9,
+          "logo": "https://a.espncdn.com/i/teamlogos/nfl/500/hou.png",
+          "colors": {
+            "primary": "#03202F",
+            "secondary": "#A71930"
+          }
+        },
+        "away_score": 9,
+        "spread": null,
+        "favorite": null,
+        "over_under": null,
+        "home_moneyline": null,
+        "away_moneyline": null,
+        "betting": {
+          "home_moneyline": null,
+          "away_moneyline": null
+        },
+        "weather": {
+          "temp": 72,
+          "condition": "Indoor",
+          "wind": 0,
+          "indoor": true
+        },
+        "injuries": {
+          "home_team": [],
+          "away_team": [],
+          "impact_score": 0,
+          "warnings": []
+        },
+        "analytics": {
+          "home_team": {},
+          "away_team": {},
+          "matchup_advantages": [],
+          "key_stats_comparison": {}
+        },
+        "news": [],
+        "probabilities": {
+          "home_probability": 50.0,
+          "away_probability": 50.0,
+          "confidence_level": "low",
+          "method": "spread"
+        },
+        "advanced_metrics": {
+          "home_team": {
+            "elo": {
+              "rating": 1396,
+              "tier": "Weak",
+              "base_rating": 1380,
+              "variance": 16
+            },
+            "strength_of_schedule": {
+              "season_sos": 0.463,
+              "played_sos": 0.428,
+              "remaining_sos": 0.497,
+              "played_games": 1,
+              "remaining_games": 17,
+              "sos_rank": 13,
+              "difficulty": "Medium"
+            },
+            "rest_advantage": 6,
+            "travel_distance": 2201,
+            "home_record": "4-4",
+            "road_record": "6-5",
+            "last_5_games": "3-0",
+            "division_record": "4-3",
+            "vs_winning_teams": "3-4",
+            "in_primetime": "2-1"
+          },
+          "away_team": {
+            "elo": {
+              "rating": 1335,
+              "tier": "Weak",
+              "base_rating": 1310,
+              "variance": 25
+            },
+            "strength_of_schedule": {
+              "season_sos": 0.528,
+              "played_sos": 0.516,
+              "remaining_sos": 0.539,
+              "played_games": 1,
+              "remaining_games": 17,
+              "sos_rank": 3,
+              "difficulty": "Medium"
+            },
+            "rest_advantage": 0,
+            "travel_distance": 2086,
+            "home_record": "5-5",
+            "road_record": "6-5",
+            "last_5_games": "3-2",
+            "division_record": "2-4",
+            "vs_winning_teams": "4-4",
+            "in_primetime": "1-1"
+          }
+        },
+        "divisional": false,
+        "confidence": 0.7
+      },
+      {
+        "id": "401772918",
+        "date": "2025-09-08T00:20Z",
+        "status": "final",
+        "venue": "Highmark Stadium",
+        "home_team": {
+          "id": "2",
+          "name": "Buffalo Bills",
+          "abbr": "BUF",
+          "record": "2-0",
+          "score": 41,
+          "logo": "https://a.espncdn.com/i/teamlogos/nfl/500/buf.png",
+          "colors": {
+            "primary": "#00338D",
+            "secondary": "#C60C30"
+          }
+        },
+        "home_score": 41,
+        "away_team": {
+          "id": "33",
+          "name": "Baltimore Ravens",
+          "abbr": "BAL",
+          "record": "1-1",
+          "score": 40,
+          "logo": "https://a.espncdn.com/i/teamlogos/nfl/500/bal.png",
+          "colors": {
+            "primary": "#241773",
+            "secondary": "#9E7C0C"
+          }
+        },
+        "away_score": 40,
+        "spread": null,
+        "favorite": null,
+        "over_under": null,
+        "home_moneyline": null,
+        "away_moneyline": null,
+        "betting": {
+          "home_moneyline": null,
+          "away_moneyline": null
+        },
+        "weather": {
+          "temp": 63,
+          "condition": "Cloudy",
+          "wind": 3,
+          "indoor": false
+        },
+        "injuries": {
+          "home_team": [],
+          "away_team": [],
+          "impact_score": 0,
+          "warnings": []
+        },
+        "analytics": {
+          "home_team": {},
+          "away_team": {},
+          "matchup_advantages": [],
+          "key_stats_comparison": {}
+        },
+        "news": [
+          {
+            "headline": "Fantasy football rankings for Week 3: IDP",
+            "description": "Weekly fantasy football draft rankings for IDP leagues from Mike Clay, Tristan H. Cockcroft and Eric Moody.",
+            "published": "2025-09-16T14:56:00Z",
+            "source": "ESPN"
+          },
+          {
+            "headline": "Fantasy football rankings for Week 3: Kicker",
+            "description": "Fantasy football rankings from Matt Bowen, Mike Clay, Tristan H. Cockcroft, Daniel Dopp, Eric Karabell, Liz Loza, Eric Moody and Field Yates.",
+            "published": "2025-09-16T14:56:00Z",
+            "source": "ESPN"
+          },
+          {
+            "headline": "Fantasy football rankings for Week 3: Wide receiver",
+            "description": "Fantasy football rankings from Matt Bowen, Mike Clay, Tristan H. Cockcroft, Daniel Dopp, Eric Karabell, Liz Loza, Eric Moody and Field Yates.",
+            "published": "2025-09-16T14:55:00Z",
+            "source": "ESPN"
+          }
+        ],
+        "probabilities": {
+          "home_probability": 50.0,
+          "away_probability": 50.0,
+          "confidence_level": "low",
+          "method": "spread"
+        },
+        "advanced_metrics": {
+          "home_team": {
+            "elo": {
+              "rating": 1618,
+              "tier": "Elite",
+              "base_rating": 1620,
+              "variance": -2
+            },
+            "strength_of_schedule": {
+              "season_sos": 0.533,
+              "played_sos": 0.556,
+              "remaining_sos": 0.51,
+              "played_games": 1,
+              "remaining_games": 17,
+              "sos_rank": 16,
+              "difficulty": "Medium"
+            },
+            "rest_advantage": 3,
+            "travel_distance": 46,
+            "home_record": "8-2",
+            "road_record": "5-6",
+            "last_5_games": "4-2",
+            "division_record": "2-4",
+            "vs_winning_teams": "3-5",
+            "in_primetime": "1-1"
+          },
+          "away_team": {
+            "elo": {
+              "rating": 1608,
+              "tier": "Elite",
+              "base_rating": 1580,
+              "variance": 28
+            },
+            "strength_of_schedule": {
+              "season_sos": 0.499,
+              "played_sos": 0.435,
+              "remaining_sos": 0.562,
+              "played_games": 1,
+              "remaining_games": 17,
+              "sos_rank": 6,
+              "difficulty": "Medium"
+            },
+            "rest_advantage": 3,
+            "travel_distance": 643,
+            "home_record": "6-3",
+            "road_record": "6-6",
+            "last_5_games": "5-2",
+            "division_record": "1-0",
+            "vs_winning_teams": "2-5",
+            "in_primetime": "0-1"
+          }
+        },
+        "divisional": false,
+        "confidence": 0.7
+      },
+      {
+        "id": "401772810",
+        "date": "2025-09-09T00:15Z",
+        "status": "final",
+        "venue": "Soldier Field",
+        "home_team": {
+          "id": "3",
+          "name": "Chicago Bears",
+          "abbr": "CHI",
+          "record": "0-2",
+          "score": 24,
+          "logo": "https://a.espncdn.com/i/teamlogos/nfl/500/chi.png",
+          "colors": {
+            "primary": "#0B162A",
+            "secondary": "#C83803"
+          }
+        },
+        "home_score": 24,
+        "away_team": {
+          "id": "16",
+          "name": "Minnesota Vikings",
+          "abbr": "MIN",
+          "record": "1-1",
+          "score": 27,
+          "logo": "https://a.espncdn.com/i/teamlogos/nfl/500/min.png",
+          "colors": {
+            "primary": "#4F2683",
+            "secondary": "#FFC62F"
+          }
+        },
+        "away_score": 27,
+        "spread": null,
+        "favorite": null,
+        "over_under": null,
+        "home_moneyline": null,
+        "away_moneyline": null,
+        "betting": {
+          "home_moneyline": null,
+          "away_moneyline": null
+        },
+        "weather": {
+          "temp": 70,
+          "condition": "Cloudy",
+          "wind": 6,
+          "indoor": false
+        },
+        "injuries": {
+          "home_team": [],
+          "away_team": [],
+          "impact_score": 0,
+          "warnings": []
+        },
+        "analytics": {
+          "home_team": {},
+          "away_team": {},
+          "matchup_advantages": [],
+          "key_stats_comparison": {}
+        },
+        "news": [
+          {
+            "headline": "Tom Brady shown in Raiders booth wearing headset during MNF",
+            "description": "Raiders minority owner Tom Brady was seen wearing a headset in the team's coaching booth during Monday's game vs. the Chargers.",
+            "published": "2025-09-16T15:09:25Z",
+            "source": "ESPN"
+          }
+        ],
+        "probabilities": {
+          "home_probability": 50.0,
+          "away_probability": 50.0,
+          "confidence_level": "low",
+          "method": "spread"
+        },
+        "advanced_metrics": {
+          "home_team": {
+            "elo": {
+              "rating": 1298,
+              "tier": "Weak",
+              "base_rating": 1340,
+              "variance": -42
+            },
+            "strength_of_schedule": {
+              "season_sos": 0.603,
+              "played_sos": 0.582,
+              "remaining_sos": 0.625,
+              "played_games": 1,
+              "remaining_games": 17,
+              "sos_rank": 12,
+              "difficulty": "Hard"
+            },
+            "rest_advantage": 0,
+            "travel_distance": 1886,
+            "home_record": "6-5",
+            "road_record": "5-5",
+            "last_5_games": "5-0",
+            "division_record": "3-2",
+            "vs_winning_teams": "3-6",
+            "in_primetime": "2-0"
+          },
+          "away_team": {
+            "elo": {
+              "rating": 1493,
+              "tier": "Strong",
+              "base_rating": 1530,
+              "variance": -37
+            },
+            "strength_of_schedule": {
+              "season_sos": 0.568,
+              "played_sos": 0.61,
+              "remaining_sos": 0.526,
+              "played_games": 1,
+              "remaining_games": 17,
+              "sos_rank": 1,
+              "difficulty": "Hard"
+            },
+            "rest_advantage": 3,
+            "travel_distance": 1544,
+            "home_record": "5-0",
+            "road_record": "4-5",
+            "last_5_games": "5-2",
+            "division_record": "4-0",
+            "vs_winning_teams": "2-4",
+            "in_primetime": "2-2"
+          }
+        },
+        "divisional": true,
+        "confidence": 0.7
+      }
+    ]
+  },
+  "timestamps": {
+    "1": "2025-09-16T10:14:14.645132"
+  },
+  "hashes": {
+    "1": "8fb32ab07ebb024f4eea974348de0888"
+  },
+  "refresh_checks": {
+    "1": "2025-09-16T10:14:14.645132"
+  }
+}
