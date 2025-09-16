@@ -601,6 +601,24 @@
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
         }
 
+        .confidence-percentage {
+            padding: 8px 16px;
+            border-radius: 25px;
+            font-size: 1.1rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            text-align: center;
+            letter-spacing: 0.5px;
+            transition: all 0.3s ease;
+            min-width: 80px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .confidence-percentage:hover {
+            transform: scale(1.05);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
         .safety-score {
             background: linear-gradient(135deg, #1f2937, #374151);
             color: #ffffff;
@@ -2970,6 +2988,11 @@
                 gap: 2px;
                 margin: 0 4px;
             }
+            .confidence-percentage {
+                font-size: 1rem;
+                padding: 6px 12px;
+                min-width: 70px;
+            }
             .game-header {
                 flex-direction: column;
                 align-items: flex-start;
@@ -3876,11 +3899,8 @@
                         <div class="eliminator-rec">
                             <div class="rec-header">
                                 <span class="rec-team">Pick: ${game.eliminator.recommended_team}</span>
-                                <span class="confidence-badge confidence-${game.eliminator.confidence}">
-                                    ${game.eliminator.confidence}
-                                </span>
-                                <span class="safety-score" title="Safety Score: ${Math.round(game.eliminator.safety_score || 0)}/100">
-                                    🛡️ ${Math.round(game.eliminator.safety_score || 0)}
+                                <span class="confidence-percentage confidence-${this.getConfidenceClass(game.eliminator.safety_score || 0)}">
+                                    ${Math.round(game.eliminator.safety_score || 0)}%
                                 </span>
                             </div>
                             ${game.eliminator.reasons.length > 0 ? `
@@ -3958,6 +3978,13 @@
 
                     </div>
                 `;
+            }
+
+            getConfidenceClass(score) {
+                if (score >= 90) return 'very_high';
+                if (score >= 75) return 'high';
+                if (score >= 50) return 'medium';
+                return 'low';
             }
 
             generateGameInsights(game) {
