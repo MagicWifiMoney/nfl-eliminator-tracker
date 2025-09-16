@@ -1239,44 +1239,57 @@ class NFLGameTracker:
         return api_team_clean in game_team_clean or game_team_clean in api_team_clean
     
     def parse_odds_data(self, odds_game):
-        """Parse odds data from The Odds API"""
+        """Parse odds data from The Odds API with correct favorite mapping.
+
+        We normalize so that 'spread' is always the favorite's line (negative value),
+        and 'favorite' is 'home' or 'away' matching the team that owns that line.
+        """
         spread = 0
         over_under = 0
         home_moneyline = None
         away_moneyline = None
-        
+        favorite_side = None
+
         if 'bookmakers' in odds_game and odds_game['bookmakers']:
             bookmaker = odds_game['bookmakers'][0]  # Use first bookmaker (DraftKings, etc.)
-            
+            home_name = odds_game.get('home_team')
+            away_name = odds_game.get('away_team')
+
             for market in bookmaker.get('markets', []):
                 if market['key'] == 'h2h':  # Moneyline market
                     for outcome in market.get('outcomes', []):
-                        if outcome['name'] == odds_game.get('home_team'):
+                        if outcome.get('name') == home_name:
                             home_moneyline = outcome.get('price')
-                        elif outcome['name'] == odds_game.get('away_team'):
+                        elif outcome.get('name') == away_name:
                             away_moneyline = outcome.get('price')
-                
+
                 elif market['key'] == 'spreads':
-                    # Find the spread
+                    # Determine which team is favorite by negative point
+                    fav_point = None
+                    fav_team_name = None
                     for outcome in market.get('outcomes', []):
                         if 'point' in outcome:
                             point = outcome['point']
-                            if point < 0:  # This is the favorite
-                                spread = point
+                            if point < 0:
+                                fav_point = point
+                                fav_team_name = outcome.get('name')
                                 break
-                
+                    if fav_point is not None:
+                        spread = fav_point  # keep negative for the favorite
+                        favorite_side = 'home' if fav_team_name == home_name else 'away'
+
                 elif market['key'] == 'totals':
                     # Get the over/under total
                     for outcome in market.get('outcomes', []):
-                        if outcome['name'] == 'Over' and 'point' in outcome:
+                        if outcome.get('name') == 'Over' and 'point' in outcome:
                             over_under = outcome['point']
                             break
-        
+
         print(f"Real odds found: Spread {spread}, O/U {over_under}, Moneylines: {home_moneyline}/{away_moneyline}")
-        
+
         return {
             'spread': spread,
-            'favorite': 'home' if spread < 0 else 'away',
+            'favorite': favorite_side or ('home' if spread < 0 else 'away'),
             'over_under': over_under or round(random.uniform(40, 55) * 2) / 2,
             'home_moneyline': home_moneyline,
             'away_moneyline': away_moneyline,
@@ -1287,40 +1300,54 @@ class NFLGameTracker:
         }
     
     def get_mock_betting_data(self, game):
-        """Fallback mock betting data based on team strength"""
+        """Fallback mock betting data based on team strength.
+
+        Normalized so the favorite always has a negative spread; 'favorite' identifies the side.
+        """
         home_team = game.get('home_team', {}).get('abbr', '')
         away_team = game.get('away_team', {}).get('abbr', '')
         
-        # Strong teams (mock strength ratings)
         strong_teams = ['BUF', 'KC', 'PHI', 'SF', 'BAL', 'CIN', 'DAL', 'MIA', 'DET']
         weak_teams = ['HOU', 'CAR', 'ARI', 'NYG', 'CHI', 'WAS', 'DEN', 'NYJ']
         
-        spread = 0
+        spread = 0.0
+        favorite_side = None
         if home_team in strong_teams and away_team in weak_teams:
-            spread = round(random.uniform(-10, -6) * 2) / 2
+            spread = round(random.uniform(-10, -6) * 2) / 2  # home favored
+            favorite_side = 'home'
         elif home_team in weak_teams and away_team in strong_teams:
-            spread = round(random.uniform(3, 7) * 2) / 2
+            spread = round(random.uniform(-7, -3) * 2) / 2  # away favored
+            favorite_side = 'away'
         elif home_team in strong_teams and away_team not in weak_teams:
-            spread = round(random.uniform(-6, -2) * 2) / 2
+            spread = round(random.uniform(-6, -2) * 2) / 2  # home favored
+            favorite_side = 'home'
         elif away_team in strong_teams and home_team not in weak_teams:
-            spread = round(random.uniform(1, 4) * 2) / 2
+            spread = round(random.uniform(-4, -1) * 2) / 2  # away favored
+            favorite_side = 'away'
         else:
-            spread = round(random.uniform(-3, 3) * 2) / 2
+            # Close to pick'em; choose slight favorite randomly and keep negative for favorite
+            if random.random() < 0.5:
+                spread = round(random.uniform(-3, -0.5) * 2) / 2  # home slight favorite
+                favorite_side = 'home'
+            else:
+                spread = round(random.uniform(-3, -0.5) * 2) / 2  # away slight favorite (negative indicates favorite)
+                favorite_side = 'away'
         
-        # Convert spread to approximate moneyline odds
-        if spread < 0:  # Home team favored
-            home_moneyline = int(-110 - (abs(spread) * 15))  # Rough approximation
-            away_moneyline = int(110 + (abs(spread) * 15))
-        elif spread > 0:  # Away team favored  
-            away_moneyline = int(-110 - (abs(spread) * 15))
-            home_moneyline = int(110 + (abs(spread) * 15))
-        else:  # Pick'em
+        # Convert spread to approximate moneyline odds (favorite negative moneyline)
+        favorite_abs = abs(spread)
+        if favorite_side == 'home':
+            home_moneyline = int(-110 - (favorite_abs * 15))
+            away_moneyline = int(110 + (favorite_abs * 15))
+        elif favorite_side == 'away':
+            away_moneyline = int(-110 - (favorite_abs * 15))
+            home_moneyline = int(110 + (favorite_abs * 15))
+        else:  # Pick'em fallback
             home_moneyline = -105
             away_moneyline = -105
         
         return {
             'spread': spread,
-            'favorite': 'home' if spread < 0 else 'away',
+            'favorite': favorite_side or ('home' if spread < 0 else 'away'),
             'over_under': round(random.uniform(40, 55) * 2) / 2,
             'home_moneyline': home_moneyline,
             'away_moneyline': away_moneyline,
