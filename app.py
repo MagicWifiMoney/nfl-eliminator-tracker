@@ -468,6 +468,11 @@ class NFLGameTracker:
                             games = self.force_current_2025_records_on_games(games)
                         # Enhance with betting and weather data
                         games = self.enhance_games_data(games)
+                        # Apply cross-source validation and confidence scoring (non-blocking)
+                        try:
+                            games = self.apply_cross_validation(games, week)
+                        except Exception as e:
+                            print(f"Cross-validation failed: {e}")
                         return games
 
             except Exception as e:
@@ -557,6 +562,148 @@ class NFLGameTracker:
             return 'live'
         else:
             return 'pregame'
+
+    def get_nfl_validation_data(self, week):
+        """Fetch validation data from NFL.com public endpoints. Safe and optional.
+
+        Returns a dict with optional keys: 'scorestrip_games', 'standings'.
+        """
+        results = {
+            'scorestrip_games': [],
+            'standings': None
+        }
+
+        endpoints = [
+            f"https://www.nfl.com/api/scorestrip?season={self.current_season}&seasonType=REG&week={week}",
+            f"https://www.nfl.com/api/standings?season={self.current_season}&seasonType=REG"
+        ]
+
+        for url in endpoints:
+            try:
+                response = requests.get(url, headers=self.headers, timeout=10)
+                if response.status_code != 200:
+                    continue
+
+                # Try JSON first
+                try:
+                    data = response.json()
+                except Exception:
+                    # XML or text; skip for now to keep integration safe
+                    data = None
+
+                if not data:
+                    continue
+
+                # Heuristically detect which endpoint we handled
+                if 'standing' in json.dumps(data).lower() or 'standings' in data:
+                    results['standings'] = data
+                else:
+                    # Treat as scorestrip-like payload
+                    results['scorestrip_games'].extend(self.parse_nfl_scorestrip(data))
+
+            except Exception as e:
+                print(f"NFL.com validation fetch failed for {url}: {e}")
+                continue
+
+        return results
+
+    def parse_nfl_scorestrip(self, data):
+        """Parse NFL.com scorestrip-style data into a minimal list of games.
+
+        Returns list of { 'home_abbr': str, 'away_abbr': str, 'date': str }.
+        Safe: returns [] on unknown formats.
+        """
+        games = []
+        try:
+            # Common shapes observed over time
+            # 1) { 'games': [ { 'homeTeam': { 'abbreviation': 'KC' }, 'awayTeam': {...}, 'date': ... } ] }
+            if isinstance(data, dict) and 'games' in data and isinstance(data['games'], list):
+                for g in data['games']:
+                    try:
+                        home = g.get('homeTeam', {})
+                        away = g.get('awayTeam', {})
+                        games.append({
+                            'home_abbr': home.get('abbreviation') or home.get('abbr') or home.get('triCode') or '',
+                            'away_abbr': away.get('abbreviation') or away.get('abbr') or away.get('triCode') or '',
+                            'date': g.get('date') or g.get('gameDate') or ''
+                        })
+                    except Exception:
+                        continue
+                return games
+
+            # 2) Some variants: { 'gms': [ { 'h': 'KC', 'v': 'CIN', 'd': '2025-09-21' } ] }
+            if isinstance(data, dict) and 'gms' in data and isinstance(data['gms'], list):
+                for g in data['gms']:
+                    games.append({
+                        'home_abbr': g.get('h', ''),
+                        'away_abbr': g.get('v', ''),
+                        'date': g.get('d', '')
+                    })
+                return games
+
+            # 3) Fallback: attempt to locate plausible structures
+            # Avoid being strict; keep safe and return [] if unknown
+            return []
+        except Exception as e:
+            print(f"NFL scorestrip parse error: {e}")
+            return []
+
+    def apply_cross_validation(self, games, week):
+        """Apply cross-source validation and attach 'confidence' per game.
+
+        Non-intrusive: if validation fetch fails, returns original games with default confidence.
+        """
+        try:
+            validation = self.get_nfl_validation_data(week)
+        except Exception as e:
+            print(f"Validation fetch failed: {e}")
+            validation = {'scorestrip_games': [], 'standings': None}
+
+        scorestrip_games = validation.get('scorestrip_games') or []
+
+        # Build quick index for faster lookup
+        index = {}
+        for vg in scorestrip_games:
+            key = f"{vg.get('home_abbr','')}@{vg.get('away_abbr','')}"
+            index[key] = vg
+
+        for game in games:
+            try:
+                home = (game.get('home_team') or {}).get('abbr', '')
+                away = (game.get('away_team') or {}).get('abbr', '')
+                key_direct = f"{home}@{away}"
+                key_reverse = f"{away}@{home}"
+
+                confidence = 0.6  # baseline
+
+                # Source agreement check
+                if key_direct in index or key_reverse in index:
+                    confidence += 0.2
+
+                # Schedule sanity check (same calendar day if both dates exist)
+                vg = index.get(key_direct) or index.get(key_reverse)
+                if vg and vg.get('date') and game.get('date'):
+                    try:
+                        d1 = str(game['date'])[:10]
+                        d2 = str(vg['date'])[:10]
+                        if d1 == d2:
+                            confidence += 0.1
+                    except Exception:
+                        pass
+
+                # Records present adds minor confidence (parsed elsewhere)
+                home_record = (game.get('home_team') or {}).get('record', '0-0')
+                away_record = (game.get('away_team') or {}).get('record', '0-0')
+                if isinstance(home_record, str) and isinstance(away_record, str):
+                    if re.match(r"^\d+-\d+", home_record) and re.match(r"^\d+-\d+", away_record):
+                        confidence += 0.1
+
+                game['confidence'] = max(0.0, min(round(confidence, 2), 1.0))
+            except Exception:
+                # Safe default if anything unexpected
+                game['confidence'] = 0.6
+
+        return games
     
     def parse_venue(self, competition):
         """Extract venue information"""
