@@ -126,20 +126,120 @@ class NFLGameTracker:
             return now.year - 1
     
     def get_current_week(self):
-        """Detect current NFL week based on date"""
+        """Detect current NFL week based on date with enhanced fallback logic"""
         now = datetime.now()
+
+        try:
+            # Try to get current week from ESPN API first
+            current_week_from_api = self.get_current_week_from_espn()
+            if current_week_from_api and 1 <= current_week_from_api <= 18:
+                print(f"📅 Using ESPN API detected week: {current_week_from_api}")
+                return current_week_from_api
+        except Exception as e:
+            print(f"⚠️ ESPN week detection failed: {e}")
+
+        # Fallback to date-based calculation
         season_start = datetime(self.current_season, 9, 5)  # Approximate NFL season start
-        
+
         # Adjust for actual season start (first Thursday of September)
         while season_start.weekday() != 3:  # Thursday is day 3
             season_start += timedelta(days=1)
-        
+
+        # Pre-season handling
         if now < season_start:
+            print("📅 Pre-season detected, defaulting to Week 1")
             return 1
-        
+
+        # Post-season handling
+        post_season_start = datetime(self.current_season + 1, 2, 1)  # February 1st
+        if now > post_season_start:
+            print("📅 Post-season detected, defaulting to Week 18")
+            return 18
+
+        # Regular season calculation
         weeks_since_start = (now - season_start).days // 7 + 1
-        return min(max(weeks_since_start, 1), 18)
-        
+        calculated_week = min(max(weeks_since_start, 1), 18)
+
+        print(f"📅 Date-based week calculation: {calculated_week}")
+        return calculated_week
+
+    def get_current_week_from_espn(self):
+        """Try to detect current NFL week from ESPN API"""
+        try:
+            # Check ESPN's current scoreboard to detect active week
+            scoreboard_url = f"{self.base_url}/scoreboard"
+            headers = self.headers
+
+            response = requests.get(scoreboard_url, headers=headers, timeout=10)
+            if response.status_code == 200:
+                data = response.json()
+
+                # Try to extract week from ESPN response
+                if 'season' in data and 'type' in data['season']:
+                    season_data = data['season']
+                    if 'week' in season_data:
+                        week = season_data['week']
+                        if isinstance(week, (int, str)) and str(week).isdigit():
+                            week_num = int(week)
+                            if 1 <= week_num <= 18:
+                                return week_num
+
+                # Alternative: check if there are current games and extract week
+                if 'events' in data and data['events']:
+                    for event in data['events'][:3]:  # Check first few events
+                        if 'season' in event and 'week' in event['season']:
+                            week = event['season']['week']
+                            if isinstance(week, (int, str)) and str(week).isdigit():
+                                week_num = int(week)
+                                if 1 <= week_num <= 18:
+                                    return week_num
+
+            return None
+
+        except Exception as e:
+            print(f"Failed to get current week from ESPN: {e}")
+            return None
+
+    def find_available_weeks(self, requested_week):
+        """Find nearby weeks that have available game data"""
+        available_weeks = []
+
+        # Check cached weeks first
+        for week_key in self.weekly_games_cache:
+            try:
+                week_num = int(week_key)
+                if 1 <= week_num <= 18:
+                    available_weeks.append(week_num)
+            except ValueError:
+                continue
+
+        # If no cached weeks, try to find any available weeks
+        if not available_weeks:
+            current_week = self.get_current_week()
+            # Try current week and nearby weeks
+            test_weeks = [current_week]
+
+            # Add weeks around current week
+            for offset in [-1, 1, -2, 2, -3, 3]:
+                test_week = current_week + offset
+                if 1 <= test_week <= 18 and test_week not in test_weeks:
+                    test_weeks.append(test_week)
+
+            # Quick test for available weeks
+            for test_week in test_weeks:
+                try:
+                    # Try a quick head request to ESPN
+                    url = f"{self.base_url}/scoreboard?week={test_week}&seasontype=2&year={self.current_season}"
+                    response = requests.head(url, timeout=5)
+                    if response.status_code == 200:
+                        available_weeks.append(test_week)
+                except:
+                    continue
+
+        # Sort and return up to 3 closest weeks
+        available_weeks.sort(key=lambda w: abs(w - requested_week))
+        return available_weeks[:3]
+
     def get_sample_data(self, week=1):
         """Fallback sample data when ESPN API is unavailable"""
         teams = [
@@ -442,8 +542,15 @@ class NFLGameTracker:
             print(f"⚠️ Using stale cache for Week {week} (fresh data failed)")
             return self.weekly_games_cache[week_key]
 
-        # Step 4: Complete fallback with detailed error reporting
+        # Step 4: Enhanced fallback with week recommendations
         if self.strict_real_data:
+            # Try to suggest alternative weeks with available data
+            alternative_weeks = self.find_available_weeks(week)
+
+            alternative_msg = ""
+            if alternative_weeks:
+                alternative_msg = f"\n💡 Available weeks with data: {', '.join(map(str, alternative_weeks))}"
+
             error_msg = f"""
 🆘 REAL DATA MODE: No NFL game data available for Week {week}
 
@@ -458,7 +565,7 @@ This app is configured for REAL DATA ONLY mode.
 Either:
 1. ESPN/NFL APIs are temporarily down
 2. It's the off-season with no active games
-3. Network connectivity issues
+3. Network connectivity issues{alternative_msg}
 
 Check the console logs above for specific API error details.
             """
@@ -2490,8 +2597,9 @@ Check the console logs above for specific API error details.
             result['reasons'].append("Indoor game - no weather impact")
         else:
             condition = weather.get('condition', 'Clear')
-            wind = weather.get('wind', 0)
-            
+            wind_value = weather.get('wind', 0)
+            wind = wind_value if wind_value is not None else 0
+
             if condition in ['Clear', 'Cloudy']:
                 weather_score = 85
                 result['reasons'].append(f"Good weather conditions ({condition})")
@@ -2503,12 +2611,12 @@ Check the console logs above for specific API error details.
                 weather_score = 40
                 result['reasons'].append(f"Snow expected - unpredictable conditions")
                 result['risks'].append("Snow creates high variance scenarios")
-            
-            # Wind adjustments
-            if wind > 20:
+
+            # Wind adjustments - handle None values safely
+            if wind and wind > 20:
                 weather_score -= 30
                 result['risks'].append(f"High winds ({wind} mph) - major impact on kicking")
-            elif wind > 15:
+            elif wind and wind > 15:
                 weather_score -= 15
                 result['risks'].append(f"Moderate winds ({wind} mph) - affects passing")
         
@@ -3364,9 +3472,11 @@ def get_research_hub_data(week):
             research_data['week_summary']['weather_warnings'] += 1
         if game.get('injuries', {}).get('impact_score', 0) >= 3:
             research_data['week_summary']['injury_concerns'] += 1
-        if abs(game.get('spread', 0)) >= 7:
+        spread_value = game.get('spread', 0)
+        spread = abs(spread_value) if spread_value is not None else 0
+        if spread >= 7:
             research_data['week_summary']['large_spreads'] += 1
-        if abs(game.get('spread', 0)) < 3:
+        if spread < 3:
             research_data['week_summary']['close_games'] += 1
     
     return jsonify(research_data)
@@ -3414,13 +3524,13 @@ def get_probabilities_data(week):
                 'abbr': game.get('home_team', {}).get('abbr'),
                 'probability': probability_data.get('home_probability', 50.0),
                 'moneyline': game.get('betting', {}).get('home_moneyline'),
-                'spread_line': game.get('spread', 0) if game.get('favorite') == 'home' else -game.get('spread', 0)
+                'spread_line': (game.get('spread') or 0) if game.get('favorite') == 'home' else -(game.get('spread') or 0)
             },
             'away_team': {
                 'abbr': game.get('away_team', {}).get('abbr'),
                 'probability': probability_data.get('away_probability', 50.0),
                 'moneyline': game.get('betting', {}).get('away_moneyline'),
-                'spread_line': game.get('spread', 0) if game.get('favorite') == 'away' else -game.get('spread', 0)
+                'spread_line': (game.get('spread') or 0) if game.get('favorite') == 'away' else -(game.get('spread') or 0)
             },
             'probability_method': probability_data.get('method', 'spread_based'),
             'confidence_level': probability_data.get('confidence_level', 'medium'),
