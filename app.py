@@ -654,7 +654,7 @@ Check the console logs above for specific API error details.
 
                     print(f"🔍 Response: {response.status_code} - {len(response.content)} bytes")
 
-                if response.status_code == 200:
+                    if response.status_code == 200:
                         # Handle different data sources and content types
                         if 'rss.xml' in url:
                             # Handle RSS feed
@@ -677,18 +677,18 @@ Check the console logs above for specific API error details.
                                 games = self.parse_cbs_xml(response.text, week)
                         else:
                             # Handle ESPN JSON response
-                    data = response.json()
-                    games = self.parse_espn_data(data, week)
+                            data = response.json()
+                            games = self.parse_espn_data(data, week)
 
-                    if games:
+                        if games:
                             print(f"✅ Successfully parsed {len(games)} games from ESPN")
 
-                        # Force current 2025 records for Week 3 display
-                        if self.current_season == 2025:
-                            games = self.force_current_2025_records_on_games(games)
+                            # Force current 2025 records for Week 3 display
+                            if self.current_season == 2025:
+                                games = self.force_current_2025_records_on_games(games)
 
-                        # Enhance with betting and weather data
-                        games = self.enhance_games_data(games)
+                            # Enhance with betting and weather data
+                            games = self.enhance_games_data(games)
 
                             # Apply cross-source validation and confidence scoring (non-blocking)
                             try:
@@ -696,7 +696,7 @@ Check the console logs above for specific API error details.
                             except Exception as e:
                                 print(f"⚠️ Cross-validation failed: {e}")
 
-                        return games
+                            return games
                         else:
                             print(f"⚠️ Endpoint returned empty games list")
 
@@ -713,7 +713,7 @@ Check the console logs above for specific API error details.
                     print(f"⏰ Request timeout on attempt {retry+1}")
                 except requests.exceptions.ConnectionError:
                     print(f"🔌 Connection error on attempt {retry+1}")
-            except Exception as e:
+                except Exception as e:
                     print(f"💥 ESPN API error with {url}: {e}")
                     break  # Don't retry on parsing errors
 
