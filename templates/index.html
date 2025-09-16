@@ -324,6 +324,15 @@
             font-weight: 600;
         }
 
+        .game-time-wrapper {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            gap: 4px;
+            margin: 0 8px;
+        }
+
         .game-status {
             font-size: 0.8rem;
             padding: 4px 8px;
@@ -2932,6 +2941,10 @@
             .game-time {
                 font-size: 0.9rem;
             }
+            .game-time-wrapper {
+                gap: 2px;
+                margin: 0 6px;
+            }
         }
         @media (max-width: 480px) {
             .top-picks-horizontal {
@@ -2952,6 +2965,10 @@
             .game-time {
                 font-size: 0.8rem;
                 line-height: 1.2;
+            }
+            .game-time-wrapper {
+                gap: 2px;
+                margin: 0 4px;
             }
             .game-header {
                 flex-direction: column;
@@ -3856,11 +3873,29 @@
 
                 return `
                     <div class="game-card" data-game-id="${game.id}" data-confidence="${game.eliminator?.confidence || 'low'}">
-                        <div class="game-header">
-                            <span class="game-time">${gameTime}</span>
-                            <span class="game-status status-${game.status}">${game.status}</span>
+                        <div class="eliminator-rec">
+                            <div class="rec-header">
+                                <span class="rec-team">Pick: ${game.eliminator.recommended_team}</span>
+                                <span class="confidence-badge confidence-${game.eliminator.confidence}">
+                                    ${game.eliminator.confidence}
+                                </span>
+                                <span class="safety-score" title="Safety Score: ${Math.round(game.eliminator.safety_score || 0)}/100">
+                                    🛡️ ${Math.round(game.eliminator.safety_score || 0)}
+                                </span>
+                            </div>
+                            ${game.eliminator.reasons.length > 0 ? `
+                                <div class="rec-reasons">
+                                    <ul>
+                                        ${game.eliminator.reasons.slice(0, 2).map(reason => `<li>${reason}</li>`).join('')}
+                                    </ul>
+                                </div>
+                            ` : ''}
+                            ${game.eliminator.warnings.length > 0 ? `
+                                <div class="rec-warnings">
+                                    ⚠️ ${game.eliminator.warnings.slice(0, 1).join(', ')}
+                                </div>
+                            ` : ''}
                         </div>
-
 
                         <div class="matchup">
                             <div class="team">
@@ -3876,6 +3911,10 @@
                                 <div class="team-record">${this.getTeamRecord(game.away_team)}</div>
                                 ${game.status !== 'pregame' ? `<div class="team-score">${game.away_score}</div>` : ''}
                                 ${game.probabilities ? `<div class="win-probability away-prob" style="background-color: ${this.getProbabilityBackgroundColor(game.probabilities.away_probability)}; color: ${this.getProbabilityColor(game.probabilities.away_probability)};">${game.probabilities.away_probability}%</div>` : ''}
+                            </div>
+                            <div class="game-time-wrapper">
+                                <span class="game-time">${gameTime}</span>
+                                <span class="game-status status-${game.status}">${game.status}</span>
                             </div>
                             <div class="vs">@</div>
                             <div class="team">
@@ -3901,32 +3940,6 @@
                                     ${game.favorite === 'home' ? game.home_team.abbr : game.away_team.abbr} ${spreadText}
                                 </span>
                             </div>
-                        </div>
-
-
-
-                        <div class="eliminator-rec">
-                            <div class="rec-header">
-                                <span class="rec-team">Pick: ${game.eliminator.recommended_team}</span>
-                                <span class="confidence-badge confidence-${game.eliminator.confidence}">
-                                    ${game.eliminator.confidence}
-                                </span>
-                                <span class="safety-score" title="Safety Score: ${Math.round(game.eliminator.safety_score || 0)}/100">
-                                    🛡️ ${Math.round(game.eliminator.safety_score || 0)}
-                                </span>
-                            </div>
-                            ${game.eliminator.reasons.length > 0 ? `
-                                <div class="rec-reasons">
-                                    <ul>
-                                        ${game.eliminator.reasons.slice(0, 2).map(reason => `<li>${reason}</li>`).join('')}
-                                    </ul>
-                                </div>
-                            ` : ''}
-                            ${game.eliminator.warnings.length > 0 ? `
-                                <div class="rec-warnings">
-                                    ⚠️ ${game.eliminator.warnings.slice(0, 1).join(', ')}
-                                </div>
-                            ` : ''}
                         </div>
 
                         ${game.injuries && game.injuries.warnings && game.injuries.warnings.length > 0 ? `
