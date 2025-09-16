@@ -63,6 +63,9 @@ class NFLGameTracker:
         self.weekly_cache_hashes = {}  # Detect data changes
         self.last_refresh_check = {}  # Track 2x daily refresh checks
         self.cache_file_path = 'weekly_cache.json'  # Persistent storage
+        
+        # Strict mode: disable all mock/sample data in responses
+        self.strict_real_data = True
 
         # Load persistent cache on startup
         self.load_weekly_cache_from_file()
@@ -439,12 +442,16 @@ class NFLGameTracker:
             print(f"⚠️ Using stale cache for Week {week} (fresh data failed)")
             return self.weekly_games_cache[week_key]
 
-        # Step 4: Complete fallback to sample data
-        print(f"🆘 Using sample data for Week {week} (no cache, API failed)")
-        games = self.get_sample_data(week)
-        if self.current_season == 2025:
-            games = self.force_current_2025_records_on_games(games)
-        return games
+        # Step 4: Complete fallback
+        if self.strict_real_data:
+            print(f"🆘 No data available for Week {week} and strict mode enabled - returning empty list")
+            return []
+        else:
+            print(f"🆘 Using sample data for Week {week} (no cache, API failed)")
+            games = self.get_sample_data(week)
+            if self.current_season == 2025:
+                games = self.force_current_2025_records_on_games(games)
+            return games
 
     def fetch_fresh_games_data(self, week):
         """Fetch fresh games data from ESPN API (extracted from old get_games_for_week)"""
@@ -1177,7 +1184,18 @@ class NFLGameTracker:
         if real_odds:
             return real_odds
         
-        # Fallback to enhanced mock data
+        # Strict mode: no mock odds
+        if self.strict_real_data:
+            return {
+                'spread': None,
+                'favorite': None,
+                'over_under': None,
+                'home_moneyline': None,
+                'away_moneyline': None,
+                'betting': {'home_moneyline': None, 'away_moneyline': None}
+            }
+        
+        # Fallback to enhanced mock data (non-strict)
         return self.get_mock_betting_data(game)
     
     def get_real_betting_odds_for_game(self, game):
@@ -1383,12 +1401,21 @@ class NFLGameTracker:
         if real_weather:
             return real_weather
         
-        # Fallback: Generate realistic outdoor weather based on season/location
+        # Strict mode: no synthetic outdoor weather
+        if self.strict_real_data:
+            return {
+                "temp": None,
+                "condition": None,
+                "wind": None,
+                "indoor": False
+            }
+        
+        # Non-strict: Generate realistic outdoor weather based on season/location
         month = datetime.now().month
         
         if month in [12, 1, 2]:  # Winter
             temp_range = (15, 45)
-            conditions = ["Clear", "Cloudy", "Snow", "Snow"]  # More snow
+            conditions = ["Clear", "Cloudy", "Snow", "Snow"]
         elif month in [3, 4, 11]:  # Fall/Spring
             temp_range = (35, 65)
             conditions = ["Clear", "Cloudy", "Rain", "Clear"]
@@ -2081,7 +2108,11 @@ class NFLGameTracker:
         except Exception as e:
             print(f"Error fetching injuries for {team_abbr}: {e}")
         
-        # Return mock injury data for demonstration
+        # Strict mode: do not return mock injuries
+        if self.strict_real_data:
+            return []
+        
+        # Non-strict: return mock injury data
         return self.get_mock_injury_data(team_abbr)
     
     def parse_injury_data(self, data):
@@ -2174,7 +2205,7 @@ class NFLGameTracker:
     def get_team_stats(self, team_id, team_abbr):
         """Get comprehensive team statistics"""
         if not team_id:
-            return self.get_mock_team_stats(team_abbr)
+            return {} if self.strict_real_data else self.get_mock_team_stats(team_abbr)
         
         try:
             url = f"{self.base_url}/teams/{team_id}/statistics"
@@ -2189,13 +2220,14 @@ class NFLGameTracker:
         except Exception as e:
             print(f"Error fetching team stats for {team_abbr}: {e}")
         
-        return self.get_mock_team_stats(team_abbr)
+        return {} if self.strict_real_data else self.get_mock_team_stats(team_abbr)
     
     def parse_team_stats(self, data):
         """Parse ESPN team statistics"""
         # Parse real ESPN data structure here
         # This would extract offensive/defensive rankings, etc.
-        return self.get_mock_team_stats("TEAM")
+        # TODO: Implement real parsing; in strict mode, return empty
+        return {} if self.strict_real_data else self.get_mock_team_stats("TEAM")
     
     def get_mock_team_stats(self, team_abbr):
         """Generate realistic mock team statistics"""
@@ -2286,7 +2318,11 @@ class NFLGameTracker:
         except Exception as e:
             print(f"Error fetching news: {e}")
         
-        # Return mock news
+        # Strict mode: do not return mock news
+        if self.strict_real_data:
+            return []
+        
+        # Non-strict: return mock news
         return self.get_mock_game_news(home_team, away_team)
     
     def filter_game_news(self, news_data, home_team, away_team):
