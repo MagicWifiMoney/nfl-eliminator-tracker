@@ -63,7 +63,7 @@ class NFLGameTracker:
         self.weekly_cache_hashes = {}  # Detect data changes
         self.last_refresh_check = {}  # Track 2x daily refresh checks
         self.cache_file_path = 'weekly_cache.json'  # Persistent storage
-        
+
         # Strict mode: disable all mock/sample data in responses
         self.strict_real_data = True
 
@@ -140,16 +140,16 @@ class NFLGameTracker:
 
         # Fallback to date-based calculation
         season_start = datetime(self.current_season, 9, 5)  # Approximate NFL season start
-
+        
         # Adjust for actual season start (first Thursday of September)
         while season_start.weekday() != 3:  # Thursday is day 3
             season_start += timedelta(days=1)
-
+        
         # Pre-season handling
         if now < season_start:
             print("📅 Pre-season detected, defaulting to Week 1")
             return 1
-
+        
         # Post-season handling
         post_season_start = datetime(self.current_season + 1, 2, 1)  # February 1st
         if now > post_season_start:
@@ -239,7 +239,7 @@ class NFLGameTracker:
         # Sort and return up to 3 closest weeks
         available_weeks.sort(key=lambda w: abs(w - requested_week))
         return available_weeks[:3]
-
+        
     def get_sample_data(self, week=1):
         """Fallback sample data when ESPN API is unavailable"""
         teams = [
@@ -572,11 +572,11 @@ Check the console logs above for specific API error details.
             print(error_msg)
             return []
         else:
-            print(f"🆘 Using sample data for Week {week} (no cache, API failed)")
-            games = self.get_sample_data(week)
-            if self.current_season == 2025:
-                games = self.force_current_2025_records_on_games(games)
-            return games
+        print(f"🆘 Using sample data for Week {week} (no cache, API failed)")
+        games = self.get_sample_data(week)
+        if self.current_season == 2025:
+            games = self.force_current_2025_records_on_games(games)
+        return games
 
     def fetch_fresh_games_data(self, week):
         """Fetch fresh games data from ESPN API with enhanced retry logic and multiple endpoints"""
@@ -654,7 +654,7 @@ Check the console logs above for specific API error details.
 
                     print(f"🔍 Response: {response.status_code} - {len(response.content)} bytes")
 
-                    if response.status_code == 200:
+                if response.status_code == 200:
                         # Handle different data sources and content types
                         if 'rss.xml' in url:
                             # Handle RSS feed
@@ -677,18 +677,18 @@ Check the console logs above for specific API error details.
                                 games = self.parse_cbs_xml(response.text, week)
                         else:
                             # Handle ESPN JSON response
-                            data = response.json()
-                            games = self.parse_espn_data(data, week)
+                    data = response.json()
+                    games = self.parse_espn_data(data, week)
 
-                        if games:
+                    if games:
                             print(f"✅ Successfully parsed {len(games)} games from ESPN")
 
-                            # Force current 2025 records for Week 3 display
-                            if self.current_season == 2025:
-                                games = self.force_current_2025_records_on_games(games)
+                        # Force current 2025 records for Week 3 display
+                        if self.current_season == 2025:
+                            games = self.force_current_2025_records_on_games(games)
 
-                            # Enhance with betting and weather data
-                            games = self.enhance_games_data(games)
+                        # Enhance with betting and weather data
+                        games = self.enhance_games_data(games)
 
                             # Apply cross-source validation and confidence scoring (non-blocking)
                             try:
@@ -696,7 +696,7 @@ Check the console logs above for specific API error details.
                             except Exception as e:
                                 print(f"⚠️ Cross-validation failed: {e}")
 
-                            return games
+                        return games
                         else:
                             print(f"⚠️ Endpoint returned empty games list")
 
@@ -713,7 +713,7 @@ Check the console logs above for specific API error details.
                     print(f"⏰ Request timeout on attempt {retry+1}")
                 except requests.exceptions.ConnectionError:
                     print(f"🔌 Connection error on attempt {retry+1}")
-                except Exception as e:
+            except Exception as e:
                     print(f"💥 ESPN API error with {url}: {e}")
                     break  # Don't retry on parsing errors
 
@@ -779,7 +779,7 @@ Check the console logs above for specific API error details.
 
                 except Exception as e:
                     print(f"⚠️ Error parsing RSS item: {e}")
-                    continue
+                continue
 
             print(f"📰 Parsed {len(games)} games from ESPN RSS feed")
             return games if games else None
@@ -1011,7 +1011,7 @@ Check the console logs above for specific API error details.
 
         except Exception as e:
             print(f"❌ CBS Sports XML parsing failed: {e}")
-            return None
+        return None
     
     def parse_espn_data(self, data, week=1):
         """Parse ESPN API response into our format"""
@@ -1664,7 +1664,7 @@ Check the console logs above for specific API error details.
     def refresh_odds_cache(self):
         """Refresh odds cache if needed (every 10 minutes) with enhanced logging"""
         now = datetime.now()
-
+        
         cache_age = (now - self.odds_cache_time).total_seconds() if self.odds_cache_time else float('inf')
         print(f"💰 Odds cache check: age={cache_age:.0f}s, threshold=600s")
 
@@ -1688,7 +1688,7 @@ Check the console logs above for specific API error details.
                 response = requests.get(url, params=params, timeout=15)
 
                 print(f"📊 Odds API Response: {response.status_code} - {len(response.content)} bytes")
-
+                
                 if response.status_code == 200:
                     new_odds_data = response.json()
 
@@ -1726,7 +1726,7 @@ Check the console logs above for specific API error details.
                         print("🚫 Rate limit exceeded for The Odds API - try again later")
                     elif response.status_code == 422:
                         print("🚫 Invalid request parameters for The Odds API")
-
+                        
             except requests.exceptions.Timeout:
                 print(f"⏰ Timeout fetching odds from The Odds API")
             except requests.exceptions.ConnectionError:
@@ -1766,7 +1766,7 @@ Check the console logs above for specific API error details.
         if not self.odds_cache:
             print(f"⚠️ No odds cache available for game matching")
             return None
-
+        
         try:
             # Match this game to cached odds data
             home_team = game.get('home_team', {}).get('name', '')
@@ -1811,19 +1811,19 @@ Check the console logs above for specific API error details.
 
             print(f"❌ No odds match found for {away_team} @ {home_team}")
             print(f"📋 Available odds games: {[(g.get('away_team'), g.get('home_team')) for g in self.odds_cache[:3]]}")
-
+                    
         except Exception as e:
             print(f"💥 Error matching game to cached odds: {e}")
             import traceback
             print(f"📋 Full traceback: {traceback.format_exc()}")
-
+        
         return None
     
     def teams_match(self, api_team, game_team):
         """Enhanced team matching between different APIs with comprehensive mapping"""
         if not api_team or not game_team:
             return False
-
+        
         # Normalize team names for matching
         api_team_clean = api_team.lower().replace(' ', '').replace('.', '')
         game_team_clean = game_team.lower().replace(' ', '').replace('.', '')
@@ -1874,7 +1874,7 @@ Check the console logs above for specific API error details.
         # Direct match
         if api_team_clean == game_team_clean:
             return True
-
+        
         # Check if api_team maps to any variation of game_team
         if api_team_clean in team_mappings:
             if game_team_clean in team_mappings[api_team_clean]:
@@ -1884,7 +1884,7 @@ Check the console logs above for specific API error details.
         if game_team_clean in team_mappings:
             if api_team_clean in team_mappings[game_team_clean]:
                 return True
-
+        
         # Check reverse mappings
         if api_team_clean in reverse_mappings:
             full_name = reverse_mappings[api_team_clean]
@@ -1925,12 +1925,12 @@ Check the console logs above for specific API error details.
         home_moneyline = None
         away_moneyline = None
         favorite_side = None
-
+        
         if 'bookmakers' in odds_game and odds_game['bookmakers']:
             bookmaker = odds_game['bookmakers'][0]  # Use first bookmaker (DraftKings, etc.)
             home_name = odds_game.get('home_team')
             away_name = odds_game.get('away_team')
-
+            
             for market in bookmaker.get('markets', []):
                 if market['key'] == 'h2h':  # Moneyline market
                     for outcome in market.get('outcomes', []):
@@ -1938,7 +1938,7 @@ Check the console logs above for specific API error details.
                             home_moneyline = outcome.get('price')
                         elif outcome.get('name') == away_name:
                             away_moneyline = outcome.get('price')
-
+                
                 elif market['key'] == 'spreads':
                     # Determine which team is favorite by negative point
                     fav_point = None
@@ -1953,16 +1953,16 @@ Check the console logs above for specific API error details.
                     if fav_point is not None:
                         spread = fav_point  # keep negative for the favorite
                         favorite_side = 'home' if fav_team_name == home_name else 'away'
-
+                
                 elif market['key'] == 'totals':
                     # Get the over/under total
                     for outcome in market.get('outcomes', []):
                         if outcome.get('name') == 'Over' and 'point' in outcome:
                             over_under = outcome['point']
                             break
-
+        
         print(f"Real odds found: Spread {spread}, O/U {over_under}, Moneylines: {home_moneyline}/{away_moneyline}")
-
+        
         return {
             'spread': spread,
             'favorite': favorite_side or ('home' if spread < 0 else 'away'),
@@ -2599,7 +2599,7 @@ Check the console logs above for specific API error details.
             condition = weather.get('condition', 'Clear')
             wind_value = weather.get('wind', 0)
             wind = wind_value if wind_value is not None else 0
-
+            
             if condition in ['Clear', 'Cloudy']:
                 weather_score = 85
                 result['reasons'].append(f"Good weather conditions ({condition})")
@@ -2611,7 +2611,7 @@ Check the console logs above for specific API error details.
                 weather_score = 40
                 result['reasons'].append(f"Snow expected - unpredictable conditions")
                 result['risks'].append("Snow creates high variance scenarios")
-
+            
             # Wind adjustments - handle None values safely
             if wind and wind > 20:
                 weather_score -= 30
@@ -3333,7 +3333,8 @@ def index_beta():
         with open(template_path, 'r', encoding='utf-8') as f:
             html = f.read()
 
-        injection = "\n    <link rel=\"stylesheet\" href=\"/static/index_beta.css\">\n"
+        # Add cache-busting query so new beta styles show immediately after deploy
+        injection = "\n    <link rel=\"stylesheet\" href=\"/static/index_beta.css?v=2\">\n"
         if '</head>' in html:
             html = html.replace('</head>', f'{injection}</head>')
         else:

@@ -28,3 +28,31 @@
 
 /* Compact insights */
 .insight-item { font-size: 12px; }
+
+/* Prominent BETA badge in header */
+.header::after {
+  content: 'BETA';
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  padding: 4px 10px;
+  font-weight: 700;
+  font-size: 12px;
+  letter-spacing: 0.5px;
+  color: #78350f;
+  background: #fef3c7;
+  border: 1px solid #f59e0b;
+  border-radius: 999px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+}
+
+/* Stronger card accent and hover */
+.game-card { border-left: 4px solid #2563eb; }
+.game-card:hover { box-shadow: 0 8px 24px rgba(0,0,0,0.12); }
+
+/* More visible active filter chip */
+.filters .filter-btn.active {
+  background: #dbeafe !important;
+  color: #1e3a8a !important;
+  border-color: #bfdbfe !important;
+}
