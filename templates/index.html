@@ -22,6 +22,27 @@
             line-height: 1.6;
         }
 
+        :root {
+            --confidence-very-high: #047857;
+            --confidence-very-high-accent: #065f46;
+            --confidence-very-high-rgb: 4, 120, 87;
+            --confidence-high: #1e40af;
+            --confidence-high-accent: #1e3a8a;
+            --confidence-high-rgb: 30, 64, 175;
+            --confidence-medium: #b45309;
+            --confidence-medium-accent: #92400e;
+            --confidence-medium-rgb: 180, 83, 9;
+            --confidence-low: #b91c1c;
+            --confidence-low-accent: #991b1b;
+            --confidence-low-rgb: 185, 28, 28;
+            --status-pregame-bg: rgba(var(--confidence-high-rgb), 0.12);
+            --status-pregame-text: var(--confidence-high-accent);
+            --status-live-bg: rgba(var(--confidence-medium-rgb), 0.14);
+            --status-live-text: var(--confidence-medium-accent);
+            --status-final-bg: rgba(var(--confidence-very-high-rgb), 0.12);
+            --status-final-text: var(--confidence-very-high-accent);
+        }
+
         .container {
             max-width: 1400px;
             margin: 0 auto;
@@ -334,49 +355,31 @@
         }
 
         .game-status {
+            padding: 4px 10px;
+            border-radius: 999px;
             font-size: 0.8rem;
-            padding: 4px 8px;
-            border-radius: 12px;
-            font-weight: 600;
+            font-weight: 700;
+            letter-spacing: 0.05em;
             text-transform: uppercase;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
         }
 
         .status-pregame {
-            background: #e2e8f0;
-            color: #4a5568;
+            background: var(--status-pregame-bg);
+            color: var(--status-pregame-text);
         }
 
-        .status-in_progress {
-            background: #fee2e2;
-            color: #dc2626;
-        }
-
-        .status-final {
-            background: #d1fae5;
-            color: #059669;
-        }
-
-        .game-status {
-            padding: 4px 8px;
-            border-radius: 6px;
-            font-size: 0.8rem;
-            font-weight: bold;
-            text-transform: uppercase;
-        }
-
-        .status-pregame {
-            background: #e6fffa;
-            color: #319795;
-        }
-
+        .status-in_progress,
         .status-live {
-            background: #fed7d7;
-            color: #e53e3e;
+            background: var(--status-live-bg);
+            color: var(--status-live-text);
         }
 
         .status-final {
-            background: #e2e8f0;
-            color: #4a5568;
+            background: var(--status-final-bg);
+            color: var(--status-final-text);
         }
 
         .matchup {
@@ -581,19 +584,29 @@
             transition: all 0.2s ease;
         }
 
+        .confidence-very_high {
+            background: linear-gradient(135deg, var(--confidence-very-high), var(--confidence-very-high-accent));
+            color: #ffffff;
+            box-shadow: 0 2px 4px rgba(4, 120, 87, 0.3);
+            animation: pulse-very-high 2s infinite;
+        }
+
         .confidence-high {
-            background: linear-gradient(135deg, #10b981, #047857);
-            color: white;
+            background: linear-gradient(135deg, var(--confidence-high), var(--confidence-high-accent));
+            color: #ffffff;
+            box-shadow: 0 2px 4px rgba(30, 64, 175, 0.3);
         }
 
         .confidence-medium {
-            background: linear-gradient(135deg, #f59e0b, #b45309);
-            color: white;
+            background: linear-gradient(135deg, var(--confidence-medium), var(--confidence-medium-accent));
+            color: #ffffff;
+            box-shadow: 0 2px 4px rgba(180, 83, 9, 0.3);
         }
 
         .confidence-low {
-            background: linear-gradient(135deg, #ef4444, #b91c1c);
-            color: white;
+            background: linear-gradient(135deg, var(--confidence-low), var(--confidence-low-accent));
+            color: #ffffff;
+            box-shadow: 0 2px 4px rgba(185, 28, 28, 0.3);
         }
 
         .confidence-badge:hover {
@@ -1167,64 +1180,54 @@
 
 
 
-        /* Enhanced Confidence Badges */
-        .confidence-very_high {
-            background: linear-gradient(135deg, #047857, #065f46);
-            color: white;
-            animation: pulse-very-high 2s infinite;
-            box-shadow: 0 2px 4px rgba(4, 120, 87, 0.3);
-        }
-
-        .confidence-high {
-            background: linear-gradient(135deg, #1e40af, #1e3a8a);
-            color: white;
-            box-shadow: 0 2px 4px rgba(30, 64, 175, 0.3);
-        }
-
-        .confidence-medium {
-            background: linear-gradient(135deg, #b45309, #92400e);
-            color: white;
-            box-shadow: 0 2px 4px rgba(180, 83, 9, 0.3);
-        }
-
-        .confidence-low {
-            background: linear-gradient(135deg, #b91c1c, #991b1b);
-            color: white;
-            box-shadow: 0 2px 4px rgba(185, 28, 28, 0.3);
-        }
-
         @keyframes pulse-very-high {
-            0%, 100% { 
+            0%, 100% {
                 box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7);
             }
-            50% { 
+            50% {
                 box-shadow: 0 0 0 10px rgba(16, 185, 129, 0);
             }
         }
 
         /* Probability Heat Map Colors */
         .game-card[data-confidence="very_high"] {
-            border-left: 6px solid #047857;
-            background: linear-gradient(135deg, rgba(4, 120, 87, 0.08), rgba(4, 120, 87, 0.03));
-            box-shadow: 0 2px 8px rgba(4, 120, 87, 0.1);
+            border-left: 6px solid var(--confidence-very-high);
+            background: linear-gradient(
+                135deg,
+                rgba(var(--confidence-very-high-rgb), 0.08),
+                rgba(var(--confidence-very-high-rgb), 0.03)
+            );
+            box-shadow: 0 2px 8px rgba(var(--confidence-very-high-rgb), 0.1);
         }
 
         .game-card[data-confidence="high"] {
-            border-left: 6px solid #1e40af;
-            background: linear-gradient(135deg, rgba(30, 64, 175, 0.08), rgba(30, 64, 175, 0.03));
-            box-shadow: 0 2px 8px rgba(30, 64, 175, 0.1);
+            border-left: 6px solid var(--confidence-high);
+            background: linear-gradient(
+                135deg,
+                rgba(var(--confidence-high-rgb), 0.08),
+                rgba(var(--confidence-high-rgb), 0.03)
+            );
+            box-shadow: 0 2px 8px rgba(var(--confidence-high-rgb), 0.1);
         }
 
         .game-card[data-confidence="medium"] {
-            border-left: 6px solid #b45309;
-            background: linear-gradient(135deg, rgba(180, 83, 9, 0.08), rgba(180, 83, 9, 0.03));
-            box-shadow: 0 2px 8px rgba(180, 83, 9, 0.1);
+            border-left: 6px solid var(--confidence-medium);
+            background: linear-gradient(
+                135deg,
+                rgba(var(--confidence-medium-rgb), 0.08),
+                rgba(var(--confidence-medium-rgb), 0.03)
+            );
+            box-shadow: 0 2px 8px rgba(var(--confidence-medium-rgb), 0.1);
         }
 
         .game-card[data-confidence="low"] {
-            border-left: 6px solid #b91c1c;
-            background: linear-gradient(135deg, rgba(185, 28, 28, 0.08), rgba(185, 28, 28, 0.03));
-            box-shadow: 0 2px 8px rgba(185, 28, 28, 0.1);
+            border-left: 6px solid var(--confidence-low);
+            background: linear-gradient(
+                135deg,
+                rgba(var(--confidence-low-rgb), 0.08),
+                rgba(var(--confidence-low-rgb), 0.03)
+            );
+            box-shadow: 0 2px 8px rgba(var(--confidence-low-rgb), 0.1);
         }
 
         /* History Tab Styles */
