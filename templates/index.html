@@ -128,16 +128,14 @@
 
         .controls {
             background: white;
-            padding: 24px;
+            padding: 26px 28px;
             border-radius: 16px;
             margin-bottom: 30px;
             box-shadow: 0 2px 8px rgba(0,0,0,0.1);
             border: 1px solid #e2e8f0;
             display: flex;
-            flex-wrap: wrap;
-            gap: 15px;
-            align-items: center;
-            justify-content: space-between;
+            flex-direction: column;
+            gap: 18px;
         }
 
         .week-selector {
@@ -198,37 +196,78 @@
             border-color: #3182ce;
         }
 
+        .controls-header {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .controls-header .section-header {
+            margin: 0;
+        }
+
+        .filter-scroller {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            touch-action: pan-x;
+            padding: 2px 4px 8px;
+            margin: 0 -4px;
+            scrollbar-width: thin;
+            scrollbar-color: #cbd5e1 transparent;
+        }
+
+        .filter-scroller::-webkit-scrollbar {
+            height: 6px;
+        }
+
+        .filter-scroller::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 999px;
+        }
+
         .filters {
             display: flex;
+            align-items: center;
             gap: 10px;
-            flex-wrap: wrap;
+            flex-wrap: nowrap;
+            min-width: max-content;
         }
 
         .filter-btn {
-            padding: 10px 18px;
-            border: 2px solid #cbd5e0;
-            background: white;
-            color: #2d3748;
-            border-radius: 8px;
+            flex: 0 0 auto;
+            padding: 8px 16px;
+            border: 1px solid #cbd5e1;
+            background: #f8fafc;
+            color: #0f172a;
+            border-radius: 999px;
             cursor: pointer;
-            font-size: 1rem;
+            font-size: 0.95rem;
             font-weight: 500;
-            transition: all 0.2s;
+            line-height: 1.2;
+            white-space: nowrap;
+            transition: background 0.2s ease, color 0.2s ease, border-color 0.2s ease;
         }
 
         .filter-btn:hover {
-            background: #f7fafc;
+            background: #e2e8f0;
+        }
+
+        .filter-btn:focus-visible {
+            outline: 2px solid #2563eb;
+            outline-offset: 2px;
         }
 
         .filter-btn.active {
-            background: #667eea;
-            color: white;
-            border-color: #667eea;
+            background: #dbeafe;
+            color: #1e3a8a;
+            border-color: #bfdbfe;
         }
 
-        .actions {
+        .controls-actions {
             display: flex;
-            gap: 10px;
+            gap: 12px;
+            flex-wrap: wrap;
+            justify-content: flex-end;
         }
 
         .btn {
@@ -912,12 +951,26 @@
             }
 
             .controls {
-                flex-direction: column;
-                align-items: stretch;
+                padding: 22px;
+                gap: 18px;
+            }
+
+            .filter-scroller {
+                margin: 0 -6px;
+                padding-bottom: 10px;
             }
 
             .filters {
-                justify-content: center;
+                gap: 10px;
+            }
+
+            .filter-btn {
+                padding: 9px 16px;
+                font-size: 0.95rem;
+            }
+
+            .controls-actions {
+                justify-content: flex-start;
             }
 
             .games-grid {
@@ -952,12 +1005,10 @@
         }
 
         @media (max-width: 480px) {
-            .filters {
-                flex-direction: column;
-            }
-
             .filter-btn {
                 text-align: center;
+                padding: 8px 14px;
+                font-size: 0.9rem;
             }
 
             .betting-info {
@@ -972,6 +1023,14 @@
 
             .pick-actions {
                 justify-content: center;
+            }
+
+            .controls-actions {
+                gap: 10px;
+            }
+
+            .controls-actions .btn {
+                flex: 1 1 100%;
             }
         }
 
@@ -3036,40 +3095,44 @@
         <!-- Games & Picks Tab Content -->
         <div class="tab-content active" id="games-picks-tab">
             <div class="controls">
-            <h3 class="section-header">🎮 Game Filters</h3>
-            <div class="filters">
-                <button class="filter-btn active" data-filter="all">All Games</button>
-                <button class="filter-btn" data-filter="large-spreads">Large Spreads (7+)</button>
-                <button class="filter-btn" data-filter="close-games">Close Games (<3)</button>
-                <button class="filter-btn" data-filter="weather-impact">Weather Impact</button>
-                <button class="filter-btn" data-filter="high-safety" title="Games with safety scores 80+">🛡️ High Safety</button>
-                <button class="filter-btn" data-filter="high-confidence" title="High confidence eliminator picks">🔥 High Confidence</button>
-                <button class="filter-btn" data-filter="injury-impact" title="Games with significant injury concerns">🏥 Injury Impact</button>
-                <button class="filter-btn" data-filter="home-favorites" title="Home teams favored by 3+ points">🏠 Home Favorites</button>
-                <button class="filter-btn" data-filter="upset-alert" title="Games with high upset potential">🎲 Upset Alert</button>
-                <button class="filter-btn" data-filter="value-plays" title="Best risk/reward ratio games">📈 Value Plays</button>
-                <button class="filter-btn" data-filter="prime-time" title="Sunday/Monday Night Football">🌙 Prime Time</button>
-                <button class="filter-btn" data-filter="divisional" title="Division rival matchups">🔄 Divisional</button>
+                <div class="controls-header">
+                    <h3 class="section-header">🎮 Game Filters</h3>
+                </div>
+                <div class="filter-scroller">
+                    <div class="filters">
+                        <button class="filter-btn active" data-filter="all">All Games</button>
+                        <button class="filter-btn" data-filter="large-spreads">Large Spreads (7+)</button>
+                        <button class="filter-btn" data-filter="close-games">Close Games (&lt;3)</button>
+                        <button class="filter-btn" data-filter="weather-impact">Weather Impact</button>
+                        <button class="filter-btn" data-filter="high-safety" title="Games with safety scores 80+">🛡️ High Safety</button>
+                        <button class="filter-btn" data-filter="high-confidence" title="High confidence eliminator picks">🔥 High Confidence</button>
+                        <button class="filter-btn" data-filter="injury-impact" title="Games with significant injury concerns">🏥 Injury Impact</button>
+                        <button class="filter-btn" data-filter="home-favorites" title="Home teams favored by 3+ points">🏠 Home Favorites</button>
+                        <button class="filter-btn" data-filter="upset-alert" title="Games with high upset potential">🎲 Upset Alert</button>
+                        <button class="filter-btn" data-filter="value-plays" title="Best risk/reward ratio games">📈 Value Plays</button>
+                        <button class="filter-btn" data-filter="prime-time" title="Sunday/Monday Night Football">🌙 Prime Time</button>
+                        <button class="filter-btn" data-filter="divisional" title="Division rival matchups">🔄 Divisional</button>
+                    </div>
+                </div>
+
+                <div class="controls-actions">
+                    <button class="btn btn-secondary" id="refresh-btn">🔄 Refresh</button>
+                    <button class="btn btn-primary" id="add-pick-btn">➕ Add Pick</button>
+                </div>
             </div>
 
-            <div class="actions">
-                <button class="btn btn-secondary" id="refresh-btn">🔄 Refresh</button>
-                <button class="btn btn-primary" id="add-pick-btn">➕ Add Pick</button>
+            <div class="picks-summary">
+                <div class="picks-count" id="picks-count">0/5 picks made this week</div>
             </div>
-        </div>
 
-        <div class="picks-summary">
-            <div class="picks-count" id="picks-count">0/5 picks made this week</div>
-        </div>
+            <div id="loading" class="loading" style="display: none;">
+                <div class="spinner"></div>
+                <p>Loading games...</p>
+            </div>
 
-        <div id="loading" class="loading" style="display: none;">
-            <div class="spinner"></div>
-            <p>Loading games...</p>
-        </div>
+            <div id="error" class="error" style="display: none;"></div>
 
-        <div id="error" class="error" style="display: none;"></div>
-
-        <div id="games-container" class="games-grid"></div>
+            <div id="games-container" class="games-grid"></div>
 
             <div class="picks-section">
                 <div class="picks-header">
